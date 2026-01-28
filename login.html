@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Login | Time Tracker</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Font Awesome -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+  />
+
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, setPersistence, browserLocalPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCOtKE4gJCtq4PKcjyoWveYgbDmUMpBa-w",
+      authDomain: "timetrackersystem-6cacf.firebaseapp.com",
+      projectId: "timetrackersystem-6cacf",
+      storageBucket: "timetrackersystem-6cacf.firebasestorage.app",
+      messagingSenderId: "1053438003292",
+      appId: "1:1053438003292:web:86a6ff9fa12cf819f2fe99",
+      measurementId: "G-FYKGKY1BTY"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    window.loginUser = async function () {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+      const remember = document.getElementById("remember").checked;
+
+      if (!email || !password) {
+        Swal.fire({ icon: "warning", title: "Missing Fields", text: "Please enter both email and password" });
+        return;
+      }
+
+      try {
+        // Set Firebase session persistence based on "Remember me"
+        await setPersistence(auth, remember ? browserLocalPersistence : browserSessionPersistence);
+
+        Swal.fire({ title: "Logging in...", text: "Please wait", allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+
+        Swal.fire({ icon: "success", title: "Login Successful!", text: "Welcome back!", confirmButtonColor: "#4f46e5" })
+          .then(() => window.location.href = "dashboard.html");
+
+      } catch (error) {
+        Swal.fire({ icon: "error", title: "Login Failed", text: error.message });
+      }
+    };
+
+    // Toggle password visibility
+    window.togglePassword = function(id, iconId) {
+      const input = document.getElementById(id);
+      const icon = document.getElementById(iconId);
+      if (input.type === "password") {
+        input.type = "text";
+        icon.classList.remove("fa-eye");
+        icon.classList.add("fa-eye-slash");
+      } else {
+        input.type = "password";
+        icon.classList.remove("fa-eye-slash");
+        icon.classList.add("fa-eye");
+      }
+    };
+  </script>
+</head>
+
+<body class="bg-gradient-to-br from-indigo-100 to-purple-100 min-h-screen flex items-center justify-center">
+
+  <div class="bg-white shadow-2xl rounded-2xl w-full max-w-md p-8">
+
+    <!-- Header -->
+    <div class="text-center mb-6">
+      <i class="fa-solid fa-clock text-4xl text-indigo-600 mb-3"></i>
+      <h1 class="text-3xl font-bold text-indigo-600">Welcome Back</h1>
+      <p class="text-gray-500">Login to continue</p>
+    </div>
+
+    <!-- Login Form -->
+    <form onsubmit="event.preventDefault(); loginUser();">
+
+      <!-- Email -->
+      <div class="mb-4">
+        <label class="block text-sm font-semibold text-gray-600 mb-1">Email</label>
+        <input id="email" type="email" placeholder="you@example.com"
+          class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-400 transition" />
+      </div>
+
+      <!-- Password -->
+      <div class="mb-4 relative">
+        <label class="block text-sm font-semibold text-gray-600 mb-1">Password</label>
+        <input id="password" type="password" placeholder="••••••••"
+          class="w-full border rounded-lg px-4 py-2 pr-10 focus:ring-2 focus:ring-indigo-400 transition text-gray-900" />
+        <i id="togglePassword" class="fa-solid fa-eye absolute right-3 top-[38px] cursor-pointer text-gray-400"
+           onclick="togglePassword('password', 'togglePassword')"></i>
+      </div>
+
+      <!-- Remember Me and Forgot Password -->
+      <div class="flex justify-between items-center mb-6">
+        <label class="flex items-center gap-2 text-sm text-gray-600">
+          <input type="checkbox" id="remember" class="rounded" />
+          Remember me
+        </label>
+        <a href="#" class="text-sm text-indigo-600 hover:underline">Forgot password?</a>
+      </div>
+
+      <!-- Login Button -->
+      <button type="submit"
+        class="w-full bg-indigo-600 text-white py-2 rounded-lg font-semibold hover:bg-indigo-700 transition">
+        Login
+      </button>
+    </form>
+
+    <!-- Register Link -->
+    <p class="text-center text-sm text-gray-600 mt-6">
+      Don’t have an account?
+      <a href="register.html" class="text-indigo-600 font-semibold hover:underline">Register</a>
+    </p>
+
+  </div>
+
+</body>
+</html>
