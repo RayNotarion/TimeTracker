@@ -1,124 +1,181 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Time Tracker</title>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Time Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  </head>
 
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- SweetAlert2 -->
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-  <!-- Font Awesome -->
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-  />
-</head>
-
-<body class="bg-gradient-to-br from-indigo-100 to-purple-100 min-h-screen p-6">
-
-  <!-- Header with Logout -->
-  <header class="flex justify-between items-center mb-8">
-    <h1 class="text-4xl font-bold text-indigo-600 flex items-center gap-3">
-      <i class="fa-solid fa-clock"></i> Time Tracker
-    </h1>
-    <button onclick="logoutUser()"
-      class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg flex items-center gap-2">
-      <i class="fa-solid fa-right-from-bracket"></i> Logout
-    </button>
-  </header>
-
-  <div class="bg-white shadow-2xl rounded-2xl w-full max-w-6xl mx-auto p-8">
-
-    <!-- Inputs -->
-    <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
-      <div class="relative">
-        <i class="fa-solid fa-calendar-day absolute left-3 top-1/2 -translate-y-1/2 text-indigo-400"></i>
-        <input id="date" type="date"
-          class="w-full border rounded-lg pl-10 pr-4 py-2 focus:ring-2 focus:ring-indigo-400" />
-      </div>
-      <div class="relative">
-        <i class="fa-solid fa-play absolute left-3 top-1/2 -translate-y-1/2 text-indigo-400"></i>
-        <input id="start" type="time"
-          class="w-full border rounded-lg pl-10 pr-4 py-2 focus:ring-2 focus:ring-indigo-400" />
-      </div>
-      <div class="relative">
-        <i class="fa-solid fa-stop absolute left-3 top-1/2 -translate-y-1/2 text-indigo-400"></i>
-        <input id="end" type="time"
-          class="w-full border rounded-lg pl-10 pr-4 py-2 focus:ring-2 focus:ring-indigo-400" />
-      </div>
-      <button onclick="addEntry()"
-        class="md:col-span-2 bg-indigo-600 text-white rounded-lg px-6 py-2 font-semibold hover:bg-indigo-700 transition transform hover:scale-105 flex items-center justify-center gap-2">
-        <i class="fa-solid fa-plus"></i> Add Time Entry
+  <body
+    class="bg-gradient-to-br from-indigo-100 to-purple-100 min-h-screen p-6"
+  >
+    <header
+      class="sticky top-0 z-50 bg-gradient-to-br from-indigo-100 to-purple-100 flex justify-between items-center mb-8 p-6 shadow-md"
+    >
+      <h1 class="text-4xl font-bold text-indigo-600 flex items-center gap-3">
+        <i class="fa-solid fa-clock"></i> Time Tracker
+      </h1>
+      <button
+        onclick="logoutUser()"
+        class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+      >
+        <i class="fa-solid fa-right-from-bracket"></i> Logout
       </button>
+    </header>
+
+    <div class="bg-white shadow-2xl rounded-2xl w-full max-w-6xl mx-auto p-8">
+      <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
+        <div class="relative">
+          <i
+            class="fa-solid fa-calendar-day absolute left-3 top-1/2 -translate-y-1/2 text-indigo-400"
+          ></i>
+          <input
+            id="date"
+            type="date"
+            class="w-full border rounded-lg pl-10 pr-4 py-2 focus:ring-2 focus:ring-indigo-400"
+          />
+        </div>
+
+        <div class="relative">
+          <i
+            class="fa-solid fa-play absolute left-3 top-1/2 -translate-y-1/2 text-indigo-400"
+          ></i>
+          <input
+            id="start"
+            type="text"
+            class="w-full border rounded-lg pl-10 pr-16 py-2 focus:ring-2 focus:ring-indigo-400"
+          />
+          <span
+            class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm"
+            >AM/PM</span
+          >
+        </div>
+
+        <div class="relative">
+          <i
+            class="fa-solid fa-stop absolute left-3 top-1/2 -translate-y-1/2 text-indigo-400"
+          ></i>
+          <input
+            id="end"
+            type="text"
+            class="w-full border rounded-lg pl-10 pr-16 py-2 focus:ring-2 focus:ring-indigo-400"
+          />
+          <span
+            class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm"
+            >AM/PM</span
+          >
+        </div>
+
+        <div class="md:col-span-2 flex gap-3">
+          <button
+            onclick="addEntry()"
+            class="flex-1 bg-indigo-600 text-white rounded-lg px-6 py-2 font-semibold hover:bg-indigo-700 transition transform hover:scale-105 flex items-center justify-center gap-2"
+          >
+            <i class="fa-solid fa-plus"></i> Add Time Entry
+          </button>
+
+          <button
+            onclick="deleteAllEntries()"
+            class="bg-red-600 text-white rounded-lg px-6 py-2 font-semibold hover:bg-red-700 transition transform hover:scale-105 flex items-center justify-center gap-2"
+          >
+            <i class="fa-solid fa-trash-can"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto rounded-xl border mb-6">
+        <table class="w-full border-collapse">
+          <thead>
+            <tr class="bg-indigo-100 text-indigo-700">
+              <th class="p-4 text-left">Date</th>
+              <th class="p-4 text-left">Start</th>
+              <th class="p-4 text-left">End</th>
+              <th class="p-4 text-left">Duration</th>
+              <th class="p-4 text-center">Action</th>
+            </tr>
+          </thead>
+          <tbody id="list" class="divide-y"></tbody>
+        </table>
+      </div>
+
+      <div
+        class="flex justify-between items-center bg-indigo-50 p-5 rounded-xl"
+      >
+        <span
+          class="font-semibold text-indigo-700 text-xl flex items-center gap-2"
+        >
+          <i class="fa-solid fa-chart-pie"></i> Total Time
+        </span>
+        <span id="total" class="text-3xl font-bold text-indigo-600">0h 0m</span>
+      </div>
     </div>
 
-    <!-- Table -->
-    <div class="overflow-x-auto rounded-xl border mb-6">
-      <table class="w-full border-collapse">
-        <thead>
-          <tr class="bg-indigo-100 text-indigo-700">
-            <th class="p-4 text-left">Date</th>
-            <th class="p-4 text-left">Start</th>
-            <th class="p-4 text-left">End</th>
-            <th class="p-4 text-left">Duration</th>
-            <th class="p-4 text-center">Action</th>
-          </tr>
-        </thead>
-        <tbody id="list" class="divide-y"></tbody>
-      </table>
-    </div>
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+      import {
+        getFirestore,
+        collection,
+        addDoc,
+        getDocs,
+        deleteDoc,
+        doc,
+        query,
+        where,
+        writeBatch,
+      } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+      import {
+        getAuth,
+        signOut,
+        onAuthStateChanged,
+      } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-    <!-- Total -->
-    <div class="flex justify-between items-center bg-indigo-50 p-5 rounded-xl">
-      <span class="font-semibold text-indigo-700 text-xl flex items-center gap-2">
-        <i class="fa-solid fa-chart-pie"></i> Total Time
-      </span>
-      <span id="total" class="text-3xl font-bold text-indigo-600">0h 0m</span>
-    </div>
-  </div>
+      const firebaseConfig = {
+        apiKey: "AIzaSyCOtKE4gJCtq4PKcjyoWveYgbDmUMpBa-w",
+        authDomain: "timetrackersystem-6cacf.firebaseapp.com",
+        projectId: "timetrackersystem-6cacf",
+        storageBucket: "timetrackersystem-6cacf.firebasestorage.app",
+        messagingSenderId: "1053438003292",
+        appId: "1:1053438003292:web:86a6ff9fa12cf819f2fe99",
+        measurementId: "G-FYKGKY1BTY",
+      };
 
-  <!-- Firebase + Logic -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-    import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+      const auth = getAuth(app);
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyCOtKE4gJCtq4PKcjyoWveYgbDmUMpBa-w",
-      authDomain: "timetrackersystem-6cacf.firebaseapp.com",
-      projectId: "timetrackersystem-6cacf",
-      storageBucket: "timetrackersystem-6cacf.firebasestorage.app",
-      messagingSenderId: "1053438003292",
-      appId: "1:1053438003292:web:86a6ff9fa12cf819f2fe99",
-      measurementId: "G-FYKGKY1BTY"
-    };
+      let user = null;
+      let entries = [];
+      let totalMinutes = 0;
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const auth = getAuth(app);
+      const timeCollection = collection(db, "timeEntries");
 
-    let user = null;       // store logged-in user
-    let entries = [];
-    let totalMinutes = 0;
+      function formatTime(time) {
+        const [hour, minute] = time.split(":").map(Number);
+        const ampm = hour >= 12 ? "PM" : "AM";
+        const hour12 = hour % 12 || 12;
+        return `${hour12}:${minute.toString().padStart(2, "0")} ${ampm}`;
+      }
 
-    const timeCollection = collection(db, "timeEntries");
+      function formatDate(date) {
+        return new Date(date).toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        });
+      }
 
-    function formatTime(time) {
-      const [hour, minute] = time.split(":").map(Number);
-      const ampm = hour >= 12 ? "PM" : "AM";
-      const hour12 = hour % 12 || 12;
-      return `${hour12}:${minute.toString().padStart(2,"0")} ${ampm}`;
-    }
-
-    function formatDate(date) {
-      return new Date(date).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
-    }
-
-    function showEmptyMessage() {
-      document.getElementById("list").innerHTML = `
+      function showEmptyMessage() {
+        document.getElementById("list").innerHTML = `
         <tr>
           <td colspan="5" class="p-8 text-center text-gray-400">
             <i class="fa-solid fa-clock text-4xl mb-3 block"></i>
@@ -126,10 +183,10 @@
           </td>
         </tr>
       `;
-    }
+      }
 
-    function addRow(entry, index) {
-      const row = `
+      function addRow(entry, index) {
+        const row = `
         <tr class="hover:bg-gray-50">
           <td class="p-4">${formatDate(entry.date)}</td>
           <td class="p-4">${formatTime(entry.start)}</td>
@@ -142,131 +199,245 @@
           </td>
         </tr>
       `;
-      document.getElementById("list").insertAdjacentHTML("beforeend", row);
-    }
+        document.getElementById("list").insertAdjacentHTML("beforeend", row);
+      }
 
-    function refreshTable() {
-      document.getElementById("list").innerHTML = "";
-      if(entries.length === 0) { showEmptyMessage(); return; }
-      entries.forEach((entry,index) => addRow(entry,index));
-    }
+      function refreshTable() {
+        document.getElementById("list").innerHTML = "";
+        if (entries.length === 0) {
+          showEmptyMessage();
+          return;
+        }
+        entries.forEach((entry, index) => addRow(entry, index));
+      }
 
-    function updateTotal() {
-      const h = Math.floor(totalMinutes / 60);
-      const m = totalMinutes % 60;
-      document.getElementById("total").textContent = `${h}h ${m}m`;
-    }
+      function updateTotal() {
+        const h = Math.floor(totalMinutes / 60);
+        const m = totalMinutes % 60;
+        document.getElementById("total").textContent = `${h}h ${m}m`;
+      }
 
-    async function loadFromFirestore() {
-      entries = [];
-      totalMinutes = 0;
-      const q = query(timeCollection, where("uid", "==", user.uid));
-      const querySnapshot = await getDocs(q);
-      querySnapshot.forEach(docSnap => {
-        const data = docSnap.data();
-        entries.push({...data, id: docSnap.id});
-        totalMinutes += data.minutesTotal;
-      });
-      refreshTable();
-      updateTotal();
-    }
-
-    window.addEntry = async function() {
-      const date = document.getElementById("date").value;
-      const start = document.getElementById("start").value;
-      const end = document.getElementById("end").value;
-
-      if(!date || !start || !end) { Swal.fire({icon:"error",title:"Missing Fields"}); return; }
-
-      const startTime = new Date(`${date}T${start}`);
-      const endTime = new Date(`${date}T${end}`);
-      if(endTime <= startTime) { Swal.fire({icon:"warning",title:"Invalid Time Range"}); return; }
-
-      const diffMinutes = Math.floor((endTime - startTime)/60000);
-      totalMinutes += diffMinutes;
-
-      const newEntry = { 
-        date, start, end, 
-        hours: Math.floor(diffMinutes/60), 
-        minutes: diffMinutes%60, 
-        minutesTotal: diffMinutes,
-        uid: user.uid // store user ID for session
-      };
-
-      try {
-        const docRef = await addDoc(timeCollection,newEntry);
-        newEntry.id = docRef.id;
-        entries.push(newEntry);
-
+      async function loadFromFirestore() {
+        entries = [];
+        totalMinutes = 0;
+        const q = query(timeCollection, where("uid", "==", user.uid));
+        const querySnapshot = await getDocs(q);
+        querySnapshot.forEach((docSnap) => {
+          const data = docSnap.data();
+          entries.push({ ...data, id: docSnap.id });
+          totalMinutes += data.minutesTotal;
+        });
         refreshTable();
         updateTotal();
-
-        Swal.fire({icon:"success",title:"Time Added!",timer:1200,showConfirmButton:false});
-        document.getElementById("start").value = "";
-        document.getElementById("end").value = "";
-      } catch(error) {
-        Swal.fire({icon:"error",title:"Failed to save entry",text:error.message});
       }
-    }
 
-    window.deleteEntry = function(index) {
-      const entry = entries[index];
-      Swal.fire({
-        title: "Are you sure you want to delete this entry?",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#dc2626",
-        cancelButtonColor: "#6b7280",
-        confirmButtonText: "Yes, delete",
-        cancelButtonText: "Cancel"
-      }).then(async(result) => {
-        if(result.isConfirmed){
-          try{
-            await deleteDoc(doc(db,"timeEntries",entry.id));
-            totalMinutes -= entry.minutesTotal;
-            entries.splice(index,1);
+      // ------------------ Flatpickr Time Pickers ------------------
+      flatpickr("#start", {
+        enableTime: true,
+        noCalendar: true,
+        dateFormat: "H:i",
+        time_24hr: true,
+        defaultDate: new Date(),
+        minuteIncrement: 15,
+      });
+
+      flatpickr("#end", {
+        enableTime: true,
+        noCalendar: true,
+        dateFormat: "H:i",
+        time_24hr: true,
+        defaultDate: new Date(new Date().getTime() + 60 * 60 * 1000),
+        minuteIncrement: 15,
+      });
+      // ------------------------------------------------------------
+
+      window.addEntry = async function () {
+        const date = document.getElementById("date").value;
+        const start = document.getElementById("start").value;
+        const end = document.getElementById("end").value;
+
+        if (!date || !start || !end) {
+          Swal.fire({ icon: "error", title: "Missing Fields" });
+          return;
+        }
+
+        const startTime = new Date(`${date}T${start}`);
+        const endTime = new Date(`${date}T${end}`);
+        if (endTime <= startTime) {
+          Swal.fire({ icon: "warning", title: "Invalid Time Range" });
+          return;
+        }
+
+        const diffMinutes = Math.floor((endTime - startTime) / 60000);
+        totalMinutes += diffMinutes;
+
+        const newEntry = {
+          date,
+          start,
+          end,
+          hours: Math.floor(diffMinutes / 60),
+          minutes: diffMinutes % 60,
+          minutesTotal: diffMinutes,
+          uid: user.uid,
+        };
+
+        try {
+          const docRef = await addDoc(timeCollection, newEntry);
+          newEntry.id = docRef.id;
+          entries.push(newEntry);
+
+          refreshTable();
+          updateTotal();
+
+          Swal.fire({
+            icon: "success",
+            title: "Time Added!",
+            timer: 1200,
+            showConfirmButton: false,
+          });
+
+          // Reset pickers
+          flatpickr("#start").setDate(new Date(), true);
+          flatpickr("#end").setDate(
+            new Date(new Date().getTime() + 60 * 60 * 1000),
+            true,
+          );
+        } catch (error) {
+          Swal.fire({
+            icon: "error",
+            title: "Failed to save entry",
+            text: error.message,
+          });
+        }
+      };
+
+      window.deleteEntry = function (index) {
+        const entry = entries[index];
+        Swal.fire({
+          title: "Are you sure you want to delete this entry?",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#dc2626",
+          cancelButtonColor: "#6b7280",
+          confirmButtonText: "Yes, delete",
+          cancelButtonText: "Cancel",
+        }).then(async (result) => {
+          if (result.isConfirmed) {
+            try {
+              await deleteDoc(doc(db, "timeEntries", entry.id));
+              totalMinutes -= entry.minutesTotal;
+              entries.splice(index, 1);
+              refreshTable();
+              updateTotal();
+              Swal.fire({
+                icon: "success",
+                title: "Deleted!",
+                timer: 1000,
+                showConfirmButton: false,
+              });
+            } catch (error) {
+              Swal.fire({
+                icon: "error",
+                title: "Failed to delete",
+                text: error.message,
+              });
+            }
+          }
+        });
+      };
+
+      window.deleteAllEntries = async function () {
+        if (entries.length === 0) {
+          Swal.fire({ icon: "info", title: "No entries to delete" });
+          return;
+        }
+
+        Swal.fire({
+          title: "Delete ALL entries?",
+          text: "This action cannot be undone!",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#dc2626",
+          cancelButtonColor: "#6b7280",
+          confirmButtonText: "Yes, delete all",
+          cancelButtonText: "Cancel",
+        }).then(async (result) => {
+          if (!result.isConfirmed) return;
+
+          try {
+            const batch = writeBatch(db);
+            entries.forEach((entry) => {
+              batch.delete(doc(db, "timeEntries", entry.id));
+            });
+            await batch.commit();
+
+            entries = [];
+            totalMinutes = 0;
             refreshTable();
             updateTotal();
-            Swal.fire({icon:"success",title:"Deleted!",timer:1000,showConfirmButton:false});
-          } catch(error){
-            Swal.fire({icon:"error",title:"Failed to delete",text:error.message});
+
+            Swal.fire({
+              icon: "success",
+              title: "All entries deleted",
+              timer: 1200,
+              showConfirmButton: false,
+            });
+          } catch (error) {
+            Swal.fire({
+              icon: "error",
+              title: "Failed to delete all",
+              text: error.message,
+            });
           }
+        });
+      };
+
+      window.logoutUser = function () {
+        Swal.fire({
+          title: "Are you sure you want to logout?",
+          icon: "question",
+          showCancelButton: true,
+          confirmButtonColor: "#dc2626",
+          cancelButtonColor: "#6b7280",
+          confirmButtonText: "Yes, logout",
+          cancelButtonText: "Cancel",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            signOut(auth)
+              .then(() => {
+                Swal.fire({
+                  icon: "success",
+                  title: "Logged out",
+                  timer: 1000,
+                  showConfirmButton: false,
+                }).then(() => (window.location.href = "index.html"));
+              })
+              .catch((error) =>
+                Swal.fire({
+                  icon: "error",
+                  title: "Logout Failed",
+                  text: error.message,
+                }),
+              );
+          }
+        });
+      };
+
+      document.getElementById("date").valueAsDate = new Date();
+
+      onAuthStateChanged(auth, (u) => {
+        if (u) {
+          user = u;
+          loadFromFirestore();
+        } else {
+          Swal.fire({
+            icon: "warning",
+            title: "You must log in first!",
+            timer: 1500,
+            showConfirmButton: false,
+          }).then(() => (window.location.href = "login.html"));
         }
       });
-    }
-
-    window.logoutUser = function(){
-      Swal.fire({
-        title: "Are you sure you want to logout?",
-        icon: "question",
-        showCancelButton: true,
-        confirmButtonColor: "#dc2626",
-        cancelButtonColor: "#6b7280",
-        confirmButtonText: "Yes, logout",
-        cancelButtonText: "Cancel"
-      }).then((result) => {
-        if(result.isConfirmed){
-          signOut(auth).then(() => {
-            Swal.fire({icon:"success",title:"Logged out",timer:1000,showConfirmButton:false}).then(()=>window.location.href="index.html");
-          }).catch(error => Swal.fire({icon:"error",title:"Logout Failed",text:error.message}));
-        }
-      });
-    }
-
-    // Set today as default date
-    document.getElementById("date").valueAsDate = new Date();
-
-    // SESSION CHECK
-    onAuthStateChanged(auth, u => {
-      if(u){
-        user = u;
-        loadFromFirestore();
-      } else {
-        Swal.fire({icon:"warning",title:"You must log in first!",timer:1500,showConfirmButton:false})
-          .then(() => window.location.href="login.html");
-      }
-    });
-
-  </script>
-</body>
+    </script>
+  </body>
 </html>

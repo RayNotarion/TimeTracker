@@ -3,20 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <title>Register | Time Tracker</title>
-
-  <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Font Awesome -->
   <link
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
   />
-
-  <!-- SweetAlert2 -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-  <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -72,7 +64,6 @@
       }
     };
 
-    // Toggle password visibility
     window.togglePassword = function(id, iconId) {
       const input = document.getElementById(id);
       const icon = document.getElementById(iconId);
@@ -93,31 +84,26 @@
 
   <div class="bg-white shadow-2xl rounded-2xl w-full max-w-md p-8">
 
-    <!-- Header -->
     <div class="text-center mb-6">
       <i class="fa-solid fa-user-plus text-4xl text-indigo-600 mb-3"></i>
       <h1 class="text-3xl font-bold text-indigo-600">Create Account</h1>
       <p class="text-gray-500">Start tracking your time</p>
     </div>
 
-    <!-- Form -->
     <form onsubmit="event.preventDefault(); registerUser();">
 
-      <!-- Full Name -->
       <div class="mb-4">
         <label class="block text-sm font-semibold text-gray-600 mb-1">Full Name</label>
         <input id="name" type="text" placeholder="John Doe"
           class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-400 transition" />
       </div>
 
-      <!-- Email -->
       <div class="mb-4">
         <label class="block text-sm font-semibold text-gray-600 mb-1">Email</label>
         <input id="email" type="email" placeholder="example@mail.com"
           class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-400 transition" />
       </div>
 
-      <!-- Password -->
       <div class="mb-4 relative">
         <label class="block text-sm font-semibold text-gray-600 mb-1">Password</label>
         <input id="password" type="password" placeholder="********"
@@ -126,7 +112,6 @@
            onclick="togglePassword('password', 'togglePassword')"></i>
       </div>
 
-      <!-- Confirm Password -->
       <div class="mb-6 relative">
         <label class="block text-sm font-semibold text-gray-600 mb-1">Confirm Password</label>
         <input id="confirm" type="password" placeholder="********"
