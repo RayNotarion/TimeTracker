@@ -16,9 +16,9 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   </head>
 
-  <body class="bg-gradient-to-br from-indigo-100 to-purple-100 min-h-screen p-6">
+  <body class="bg-gradient-to-br from-indigo-100 to-purple-100 min-h-screen p-6 pt-0">
     <header
-      class="sticky top-0 z-50 bg-gradient-to-br from-indigo-100 to-purple-100 flex justify-between items-center mb-8 p-6 shadow-md"
+      class="sticky r-2 top-0 z-50 bg-gradient-to-br from-indigo-100 to-purple-100 flex justify-between items-center mb-8 p-6 shadow-md rounded-md"
     >
       <h1 class="text-4xl font-bold text-indigo-600 flex items-center gap-3">
         <i class="fa-solid fa-clock"></i> Time Tracker
@@ -202,18 +202,34 @@
   }
 
   async function loadFromFirestore() {
+  showLoading();
+
+  try {
     entries = [];
     totalMinutes = 0;
+
     const q = query(timeCollection, where("uid", "==", user.uid));
     const querySnapshot = await getDocs(q);
+
     querySnapshot.forEach((docSnap) => {
       const data = docSnap.data();
       entries.push({ ...data, id: docSnap.id });
       totalMinutes += data.minutesTotal;
     });
+
     refreshTable();
     updateTotal();
+  } catch (error) {
+    Swal.fire({
+      icon: "error",
+      title: "Failed to load entries",
+      text: error.message,
+    });
+  } finally {
+    hideLoading();
   }
+}
+
 
   // ------------------ Flatpickr Time Pickers ------------------
   const startPicker = flatpickr("#start", {
@@ -415,14 +431,20 @@
   document.getElementById("date").valueAsDate = new Date();
 
   onAuthStateChanged(auth, (u) => {
-    if (u) {
-      user = u;
-      loadFromFirestore();
-    } else {
-      Swal.fire({ icon: "warning", title: "You must log in first!", timer: 1500, showConfirmButton: false })
-        .then(() => (window.location.href = "login.html"));
-    }
-  });
+  if (u) {
+    user = u;
+    showLoading();
+    loadFromFirestore();
+  } else {
+    Swal.fire({
+      icon: "warning",
+      title: "You must log in first!",
+      timer: 1500,
+      showConfirmButton: false,
+    }).then(() => (window.location.href = "index.html"));
+  }
+});
+
 
   // ------------------ Add click events to table headers ------------------
   document.querySelectorAll("th").forEach((th) => {
@@ -433,7 +455,29 @@
       th.addEventListener("click", () => sortEntries(field));
     }
   });
+
+  //loading overlay management
+  function showLoading() {
+  document.getElementById("loading").classList.remove("hidden");
+}
+
+function hideLoading() {
+  document.getElementById("loading").classList.add("hidden");
+}
+
 </script>
+
+<!-- Loading Overlay -->
+<div
+  id="loading"
+  class="fixed inset-0 bg-white/80 backdrop-blur-sm z-[9999] hidden flex items-center justify-center"
+>
+  <div class="flex flex-col items-center gap-4">
+    <i class="fa-solid fa-spinner fa-spin text-indigo-600 text-5xl"></i>
+    <span class="text-indigo-600 font-semibold text-lg">Loading time entries...</span>
+  </div>
+</div>
+
 
   </body>
 </html>
