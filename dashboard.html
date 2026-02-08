@@ -29,6 +29,19 @@
         animation: fadeIn 0.3s ease-out;
       }
       
+      @keyframes pulse-glow {
+        0%, 100% {
+          box-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+        }
+        50% {
+          box-shadow: 0 0 40px rgba(239, 68, 68, 0.8);
+        }
+      }
+      
+      .pulse-glow {
+        animation: pulse-glow 2s ease-in-out infinite;
+      }
+      
       /* Custom scrollbar */
       ::-webkit-scrollbar {
         width: 10px;
@@ -55,12 +68,21 @@
       <h1 class="text-4xl font-bold text-white flex items-center gap-3">
         <i class="fa-solid fa-clock animate-pulse"></i> Time Tracker
       </h1>
-      <button
-        onclick="logoutUser()"
-        class="bg-white/20 backdrop-blur-md hover:bg-white/30 text-white px-6 py-2.5 rounded-xl flex items-center gap-2 transition-all duration-300 transform hover:scale-105 border border-white/30"
-      >
-        <i class="fa-solid fa-right-from-bracket"></i> Logout
-      </button>
+      <div class="flex items-center gap-4">
+        <button
+          onclick="switchMode()"
+          id="switchModeBtn"
+          class="bg-white/20 backdrop-blur-md hover:bg-white/30 text-white px-6 py-2.5 rounded-xl flex items-center gap-2 transition-all duration-300 transform hover:scale-105 border border-white/30"
+        >
+          <i class="fa-solid fa-repeat"></i> <span id="switchModeText">Switch Mode</span>
+        </button>
+        <button
+          onclick="logoutUser()"
+          class="bg-white/20 backdrop-blur-md hover:bg-white/30 text-white px-6 py-2.5 rounded-xl flex items-center gap-2 transition-all duration-300 transform hover:scale-105 border border-white/30"
+        >
+          <i class="fa-solid fa-right-from-bracket"></i> Logout
+        </button>
+      </div>
     </header>
 
     <div class="bg-white/90 backdrop-blur-xl shadow-2xl rounded-3xl w-full max-w-6xl mx-auto p-8 border border-white/20">
@@ -68,66 +90,82 @@
       <div class="flex gap-3 mb-8">
         <button
           onclick="openHistoryModal()"
-          class="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-2xl px-8 py-4 font-bold text-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-3 shadow-lg hover:shadow-2xl"
+          class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-2xl px-8 py-4 font-bold text-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-3 shadow-lg hover:shadow-2xl"
         >
           <i class="fa-solid fa-clock-rotate-left text-xl"></i> View History
         </button>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
-        <div class="relative group">
-          <i
-            class="fa-solid fa-calendar-day absolute left-4 top-1/2 -translate-y-1/2 text-indigo-400 group-focus-within:text-indigo-600 transition-colors"
-          ></i>
-          <input
-            id="date"
-            type="date"
-            class="w-full border-2 border-gray-200 rounded-xl pl-12 pr-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-300 bg-gray-50 hover:bg-white"
-          />
+      <!-- Realtime Tracking Section -->
+      <div id="realtimeSection" class="hidden mb-8">
+        <div class="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 p-8 rounded-2xl border-2 border-indigo-200 shadow-lg">
+          <div class="text-center mb-6">
+            <h2 class="text-3xl font-black bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-2">
+              Realtime Tracking
+            </h2>
+            <p class="text-gray-600 font-medium">Track your time as it happens</p>
+          </div>
+          
+          <div class="flex flex-col items-center gap-6">
+            <div class="text-center">
+              <div id="realtimeDisplay" class="text-6xl font-black bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-2">
+                00:00:00
+              </div>
+              <div id="realtimeDate" class="text-lg text-gray-600 font-medium"></div>
+            </div>
+            
+            <div class="w-full max-w-md">
+              <div class="relative group">
+                <i class="fa-solid fa-note-sticky absolute left-4 top-4 text-indigo-400 group-focus-within:text-indigo-600 transition-colors"></i>
+                <textarea
+                  id="realtimeNote"
+                  placeholder="Add a note about this task (optional)"
+                  rows="3"
+                  class="w-full border-2 border-gray-200 rounded-xl pl-12 pr-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-300 bg-gray-50 hover:bg-white resize-none"
+                ></textarea>
+              </div>
+            </div>
+            
+            <div class="flex gap-4">
+              <button
+                id="startBtn"
+                onclick="startRealtime()"
+                class="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-10 py-4 rounded-2xl font-bold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-3"
+              >
+                <i class="fa-solid fa-play text-xl"></i> Start
+              </button>
+              
+              <button
+                id="stopBtn"
+                onclick="stopRealtime()"
+                disabled
+                class="bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white px-10 py-4 rounded-2xl font-bold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+              >
+                <i class="fa-solid fa-stop text-xl"></i> Stop
+              </button>
+            </div>
+          </div>
         </div>
+      </div>
 
-        <div class="relative group">
-          <i
-            class="fa-solid fa-play absolute left-4 top-1/2 -translate-y-1/2 text-indigo-400 group-focus-within:text-indigo-600 transition-colors"
-          ></i>
-          <input
-            id="start"
-            type="text"
-            placeholder="Start Time"
-            class="w-full border-2 border-gray-200 rounded-xl pl-12 pr-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-300 bg-gray-50 hover:bg-white"
-          />
-        </div>
-
-        <div class="relative group">
-          <i
-            class="fa-solid fa-stop absolute left-4 top-1/2 -translate-y-1/2 text-indigo-400 group-focus-within:text-indigo-600 transition-colors"
-          ></i>
-          <input
-            id="end"
-            type="text"
-            placeholder="End Time"
-            class="w-full border-2 border-gray-200 rounded-xl pl-12 pr-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-300 bg-gray-50 hover:bg-white"
-          />
-        </div>
-
-        <div class="md:col-span-2 flex gap-3">
+      <!-- Manual Input Section -->
+      <div id="manualSection" class="hidden">
+        <div class="flex gap-3 mb-8 justify-start">
           <button
-            onclick="addEntry()"
-            class="flex-1 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl px-8 py-3 font-bold hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
+            onclick="openAddEntryModal()"
+            class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl px-8 py-4 font-bold text-lg hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
           >
-            <i class="fa-solid fa-plus text-lg"></i> Add Entry
+            <i class="fa-solid fa-plus text-xl"></i> Add Entry
           </button>
 
           <button
             onclick="deleteAllEntries()"
-            class="bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-xl px-6 py-3 font-bold hover:from-red-600 hover:to-pink-700 transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
+            class="bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-xl px-8 py-4 font-bold text-lg hover:from-red-600 hover:to-pink-700 transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
           >
-            <i class="fa-solid fa-trash-can text-lg"></i>
+            <i class="fa-solid fa-trash-can text-xl"></i> Delete All
           </button>
         </div>
       </div>
-
-
 
       <div class="overflow-x-auto rounded-2xl border-2 border-gray-100 mb-8 shadow-lg">
         <table class="w-full border-collapse">
@@ -152,7 +190,7 @@
       </div>
 
       <!-- Export Button -->
-      <div class="mt-6 flex justify-end">
+      <div class="mt-6 flex justify-center">
         <button
           onclick="exportToCSV()"
           class="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-8 py-4 rounded-2xl flex items-center gap-3 font-bold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
@@ -161,6 +199,41 @@
         </button>
       </div>
     </div>
+
+<!-- Mode Selection Modal -->
+<div id="modeSelectionModal" class="fixed inset-0 bg-black/70 backdrop-blur-md z-[10000] hidden flex items-center justify-center p-4">
+  <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden animate-fadeIn">
+    <div class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 p-8 text-center">
+      <i class="fa-solid fa-clock text-6xl text-white mb-4"></i>
+      <h2 class="text-3xl font-black text-white">Choose Your Tracking Mode</h2>
+      <p class="text-white/90 mt-2">Select how you want to track your time</p>
+    </div>
+    
+    <div class="p-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+      <button
+        onclick="selectMode('realtime')"
+        class="group bg-gradient-to-br from-green-50 to-emerald-50 hover:from-green-100 hover:to-emerald-100 border-2 border-green-200 hover:border-green-400 rounded-2xl p-8 transition-all duration-300 transform hover:scale-105 hover:shadow-xl"
+      >
+        <div class="text-center">
+          <i class="fa-solid fa-stopwatch text-6xl text-green-600 group-hover:text-green-700 mb-4"></i>
+          <h3 class="text-2xl font-bold text-gray-800 mb-2">Realtime Tracking</h3>
+          <p class="text-gray-600 text-sm">Start and stop timer as you work</p>
+        </div>
+      </button>
+      
+      <button
+        onclick="selectMode('manual')"
+        class="group bg-gradient-to-br from-indigo-50 to-purple-50 hover:from-indigo-100 hover:to-purple-100 border-2 border-indigo-200 hover:border-indigo-400 rounded-2xl p-8 transition-all duration-300 transform hover:scale-105 hover:shadow-xl"
+      >
+        <div class="text-center">
+          <i class="fa-solid fa-keyboard text-6xl text-indigo-600 group-hover:text-indigo-700 mb-4"></i>
+          <h3 class="text-2xl font-bold text-gray-800 mb-2">Manual Input</h3>
+          <p class="text-gray-600 text-sm">Enter start and end times manually</p>
+        </div>
+      </button>
+    </div>
+  </div>
+</div>
 
 <!-- History Modal -->
 <div id="historyModal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-[9999] hidden flex items-center justify-center p-4">
@@ -220,6 +293,7 @@
               <th class="p-5 text-left font-bold text-sm uppercase tracking-wider">Start</th>
               <th class="p-5 text-left font-bold text-sm uppercase tracking-wider">End</th>
               <th class="p-5 text-left font-bold text-sm uppercase tracking-wider">Duration</th>
+              <th class="p-5 text-left font-bold text-sm uppercase tracking-wider">Note</th>
             </tr>
           </thead>
           <tbody id="historyList" class="divide-y divide-gray-100"></tbody>
@@ -243,6 +317,124 @@
   </div>
 </div>
 
+<!-- Note View Modal -->
+<div id="noteModal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-[10001] hidden flex items-center justify-center p-4">
+  <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden animate-fadeIn">
+    <div class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 p-8 flex justify-between items-center">
+      <h2 class="text-3xl font-black text-white flex items-center gap-3">
+        <i class="fa-solid fa-note-sticky text-4xl"></i> Task Note
+      </h2>
+      <button onclick="closeNoteModal()" class="text-white hover:text-gray-200 text-3xl transition-transform hover:rotate-90 duration-300">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+    
+    <div class="p-8">
+      <div class="mb-6">
+        <h3 class="text-sm font-bold text-indigo-700 uppercase tracking-wide mb-2">Entry Details</h3>
+        <div class="bg-gradient-to-r from-indigo-50 to-purple-50 p-4 rounded-xl">
+          <p class="text-gray-700"><strong>Date:</strong> <span id="noteModalDate"></span></p>
+          <p class="text-gray-700"><strong>Time:</strong> <span id="noteModalTime"></span></p>
+          <p class="text-gray-700"><strong>Duration:</strong> <span id="noteModalDuration"></span></p>
+        </div>
+      </div>
+      
+      <div>
+        <h3 class="text-sm font-bold text-indigo-700 uppercase tracking-wide mb-2">Note</h3>
+        <div class="bg-gray-50 p-6 rounded-xl border-2 border-gray-200 min-h-[150px]">
+          <p id="noteModalContent" class="text-gray-700 whitespace-pre-wrap"></p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="p-6 bg-gradient-to-r from-gray-50 to-gray-100 border-t-2 border-gray-200 flex justify-end">
+      <button onclick="closeNoteModal()" class="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-8 py-4 rounded-2xl font-bold transition-all duration-300 transform hover:scale-105 shadow-lg">
+        Close
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Entry Modal -->
+<div id="addEntryModal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-[10001] hidden flex items-center justify-center p-4">
+  <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden animate-fadeIn">
+    <div class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 p-8 flex justify-between items-center">
+      <h2 class="text-3xl font-black text-white flex items-center gap-3">
+        <i class="fa-solid fa-plus-circle text-4xl"></i> Add Time Entry
+      </h2>
+      <button onclick="closeAddEntryModal()" class="text-white hover:text-gray-200 text-3xl transition-transform hover:rotate-90 duration-300">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+    
+    <div class="p-8">
+      <div class="space-y-6">
+        <div>
+          <label class="block text-sm font-bold text-indigo-700 mb-2 uppercase tracking-wide">Date</label>
+          <div class="relative group">
+            <i class="fa-solid fa-calendar-day absolute left-4 top-1/2 -translate-y-1/2 text-indigo-400 group-focus-within:text-indigo-600 transition-colors"></i>
+            <input
+              id="modalDate"
+              type="date"
+              class="w-full border-2 border-gray-200 rounded-xl pl-12 pr-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-300 bg-gray-50 hover:bg-white"
+            />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-bold text-indigo-700 mb-2 uppercase tracking-wide">Start Time</label>
+            <div class="relative group">
+              <i class="fa-solid fa-play absolute left-4 top-1/2 -translate-y-1/2 text-indigo-400 group-focus-within:text-indigo-600 transition-colors"></i>
+              <input
+                id="modalStart"
+                type="text"
+                placeholder="Start Time"
+                class="w-full border-2 border-gray-200 rounded-xl pl-12 pr-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-300 bg-gray-50 hover:bg-white"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-bold text-indigo-700 mb-2 uppercase tracking-wide">End Time</label>
+            <div class="relative group">
+              <i class="fa-solid fa-stop absolute left-4 top-1/2 -translate-y-1/2 text-indigo-400 group-focus-within:text-indigo-600 transition-colors"></i>
+              <input
+                id="modalEnd"
+                type="text"
+                placeholder="End Time"
+                class="w-full border-2 border-gray-200 rounded-xl pl-12 pr-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-300 bg-gray-50 hover:bg-white"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-bold text-indigo-700 mb-2 uppercase tracking-wide">Note (Optional)</label>
+          <div class="relative group">
+            <i class="fa-solid fa-note-sticky absolute left-4 top-4 text-indigo-400 group-focus-within:text-indigo-600 transition-colors"></i>
+            <textarea
+              id="modalNote"
+              placeholder="Add a note about this task"
+              rows="4"
+              class="w-full border-2 border-gray-200 rounded-xl pl-12 pr-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-300 bg-gray-50 hover:bg-white resize-none"
+            ></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="p-6 bg-gradient-to-r from-gray-50 to-gray-100 border-t-2 border-gray-200 flex justify-end gap-3">
+      <button onclick="closeAddEntryModal()" class="bg-gray-500 hover:bg-gray-600 text-white px-8 py-4 rounded-2xl font-bold transition-all duration-300 transform hover:scale-105 shadow-lg">
+        Cancel
+      </button>
+      <button onclick="saveManualEntry()" class="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-8 py-4 rounded-2xl font-bold transition-all duration-300 transform hover:scale-105 shadow-lg">
+        <i class="fa-solid fa-check"></i> Save Entry
+      </button>
+    </div>
+  </div>
+</div>
+
 
     <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -256,6 +448,9 @@
     query,
     where,
     writeBatch,
+    updateDoc,
+    setDoc,
+    getDoc,
   } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
   import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
@@ -275,11 +470,18 @@
 
   let user = null;
   let entries = [];
-  let allEntries = []; // Store all entries for filtering
-  let historyEntries = []; // For modal display
+  let allEntries = [];
+  let historyEntries = [];
   let totalMinutes = 0;
+  let currentMode = null;
+  
+  // Realtime tracking variables
+  let realtimeInterval = null;
+  let realtimeStartTime = null;
+  let realtimeStartDate = null;
 
   const timeCollection = collection(db, "timeEntries");
+  const userPrefsCollection = collection(db, "userPreferences");
 
   // ------------------ Formatting Functions ------------------
   function formatTime(time) {
@@ -318,6 +520,9 @@
         <td class="p-5 text-gray-600">${formatTime(entry.end)}</td>
         <td class="p-5 font-bold text-lg bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">${entry.hours}h ${entry.minutes}m</td>
         <td class="p-5 text-center">
+          <button onclick="viewNote(${index})" class="text-indigo-500 hover:text-indigo-700 transition-all duration-200 transform hover:scale-110 mr-3">
+            <i class="fa-solid fa-eye text-xl"></i>
+          </button>
           <button onclick="deleteEntry(${index})" class="text-red-500 hover:text-red-700 transition-all duration-200 transform hover:scale-125 hover:rotate-12">
             <i class="fa-solid fa-trash text-xl"></i>
           </button>
@@ -372,7 +577,6 @@
         allEntries.push({ ...data, id: docSnap.id });
       });
 
-      // Show only this month entries
       filterThisMonthEntries();
     } catch (error) {
       Swal.fire({
@@ -384,6 +588,292 @@
       hideLoading();
     }
   }
+
+  // ------------------ Mode Selection Functions ------------------
+  async function loadUserPreference() {
+    try {
+      const prefDoc = await getDoc(doc(userPrefsCollection, user.uid));
+      if (prefDoc.exists()) {
+        const mode = prefDoc.data().trackingMode;
+        if (mode) {
+          setMode(mode);
+          return;
+        }
+      }
+      // Show mode selection if no preference exists
+      showModeSelection();
+    } catch (error) {
+      console.error("Error loading preference:", error);
+      showModeSelection();
+    }
+  }
+
+  function showModeSelection() {
+    document.getElementById("modeSelectionModal").classList.remove("hidden");
+  }
+
+  async function saveUserPreference(mode) {
+    try {
+      await setDoc(doc(userPrefsCollection, user.uid), {
+        trackingMode: mode,
+        uid: user.uid,
+      });
+    } catch (error) {
+      console.error("Error saving preference:", error);
+    }
+  }
+
+  window.selectMode = async function(mode) {
+    document.getElementById("modeSelectionModal").classList.add("hidden");
+    await saveUserPreference(mode);
+    setMode(mode);
+  };
+
+  function setMode(mode) {
+    currentMode = mode;
+    
+    if (mode === 'realtime') {
+      document.getElementById("realtimeSection").classList.remove("hidden");
+      document.getElementById("manualSection").classList.add("hidden");
+      updateRealtimeDate();
+    } else {
+      document.getElementById("realtimeSection").classList.add("hidden");
+      document.getElementById("manualSection").classList.remove("hidden");
+    }
+  }
+
+  window.switchMode = async function() {
+    const result = await Swal.fire({
+      title: "Switch Tracking Mode?",
+      text: "Choose your new tracking mode",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: currentMode === 'realtime' ? 'Switch to Manual' : 'Switch to Realtime',
+      cancelButtonText: 'Cancel',
+      confirmButtonColor: "#6366f1",
+      cancelButtonColor: "#6b7280",
+    });
+
+    if (result.isConfirmed) {
+      const newMode = currentMode === 'realtime' ? 'manual' : 'realtime';
+      await saveUserPreference(newMode);
+      setMode(newMode);
+      
+      Swal.fire({
+        icon: "success",
+        title: "Mode Switched!",
+        text: `Now using ${newMode === 'realtime' ? 'Realtime' : 'Manual'} tracking`,
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    }
+  };
+
+  // ------------------ Realtime Tracking Functions ------------------
+  function updateRealtimeDate() {
+    const now = new Date();
+    document.getElementById("realtimeDate").textContent = formatDate(now.toISOString().split('T')[0]);
+  }
+
+  function formatElapsedTime(milliseconds) {
+    const totalSeconds = Math.floor(milliseconds / 1000);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  }
+
+  window.startRealtime = function() {
+    realtimeStartTime = Date.now();
+    realtimeStartDate = new Date().toISOString().split('T')[0];
+    
+    document.getElementById("startBtn").disabled = true;
+    document.getElementById("stopBtn").disabled = false;
+    document.getElementById("stopBtn").classList.add("pulse-glow");
+    
+    realtimeInterval = setInterval(() => {
+      const elapsed = Date.now() - realtimeStartTime;
+      document.getElementById("realtimeDisplay").textContent = formatElapsedTime(elapsed);
+    }, 1000);
+    
+    Swal.fire({
+      icon: "success",
+      title: "Timer Started!",
+      text: "Tracking your time now",
+      timer: 1500,
+      showConfirmButton: false,
+    });
+  };
+
+  window.stopRealtime = async function() {
+    if (!realtimeStartTime) return;
+    
+    clearInterval(realtimeInterval);
+    const endTime = Date.now();
+    const elapsed = endTime - realtimeStartTime;
+    
+    const startDate = new Date(realtimeStartTime);
+    const endDate = new Date(endTime);
+    
+    const startTimeStr = startDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+    const endTimeStr = endDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+    
+    const diffMinutes = Math.floor(elapsed / 60000);
+    const note = document.getElementById("realtimeNote").value.trim();
+    
+    const newEntry = {
+      date: realtimeStartDate,
+      start: startTimeStr,
+      end: endTimeStr,
+      hours: Math.floor(diffMinutes / 60),
+      minutes: diffMinutes % 60,
+      minutesTotal: diffMinutes,
+      note: note || "",
+      uid: user.uid,
+    };
+
+    try {
+      const docRef = await addDoc(timeCollection, newEntry);
+      newEntry.id = docRef.id;
+      allEntries.push(newEntry);
+
+      filterThisMonthEntries();
+
+      Swal.fire({
+        icon: "success",
+        title: "Time Saved!",
+        html: `<p class="text-lg">Duration: <strong>${newEntry.hours}h ${newEntry.minutes}m</strong></p>`,
+        timer: 2000,
+        showConfirmButton: false,
+      });
+
+      // Reset
+      document.getElementById("realtimeDisplay").textContent = "00:00:00";
+      document.getElementById("realtimeNote").value = "";
+      document.getElementById("startBtn").disabled = false;
+      document.getElementById("stopBtn").disabled = true;
+      document.getElementById("stopBtn").classList.remove("pulse-glow");
+      realtimeStartTime = null;
+      realtimeStartDate = null;
+      
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Failed to save entry",
+        text: error.message,
+      });
+    }
+  };
+
+  // ------------------ Note Modal Functions ------------------
+  window.viewNote = function(index) {
+    const entry = entries[index];
+    document.getElementById("noteModalDate").textContent = formatDate(entry.date);
+    document.getElementById("noteModalTime").textContent = `${formatTime(entry.start)} - ${formatTime(entry.end)}`;
+    document.getElementById("noteModalDuration").textContent = `${entry.hours}h ${entry.minutes}m`;
+    document.getElementById("noteModalContent").textContent = entry.note || "No note added for this entry.";
+    document.getElementById("noteModal").classList.remove("hidden");
+  };
+
+  window.closeNoteModal = function() {
+    document.getElementById("noteModal").classList.add("hidden");
+  };
+
+  // ------------------ Add Entry Modal Functions ------------------
+  let modalStartPicker, modalEndPicker;
+
+  window.openAddEntryModal = function() {
+    document.getElementById("addEntryModal").classList.remove("hidden");
+    document.getElementById("modalDate").valueAsDate = new Date();
+    
+    // Initialize Flatpickr for modal inputs if not already initialized
+    if (!modalStartPicker) {
+      modalStartPicker = flatpickr("#modalStart", {
+        enableTime: true,
+        noCalendar: true,
+        dateFormat: "h:i K",
+        time_24hr: false,
+        defaultDate: new Date(),
+        minuteIncrement: 15,
+      });
+    }
+    
+    if (!modalEndPicker) {
+      modalEndPicker = flatpickr("#modalEnd", {
+        enableTime: true,
+        noCalendar: true,
+        dateFormat: "h:i K",
+        time_24hr: false,
+        defaultDate: new Date(new Date().getTime() + 60 * 60 * 1000),
+        minuteIncrement: 15,
+      });
+    }
+    
+    // Reset to current times
+    modalStartPicker.setDate(new Date(), true);
+    modalEndPicker.setDate(new Date(new Date().getTime() + 60 * 60 * 1000), true);
+    document.getElementById("modalNote").value = "";
+  };
+
+  window.closeAddEntryModal = function() {
+    document.getElementById("addEntryModal").classList.add("hidden");
+  };
+
+  window.saveManualEntry = async function() {
+    const date = document.getElementById("modalDate").value;
+    const start = document.getElementById("modalStart").value;
+    const end = document.getElementById("modalEnd").value;
+    const note = document.getElementById("modalNote").value.trim();
+
+    if (!date || !start || !end) {
+      Swal.fire({ icon: "error", title: "Missing Fields", text: "Please fill in date, start time, and end time" });
+      return;
+    }
+
+    const startTime = new Date(`${date} ${start}`);
+    const endTime = new Date(`${date} ${end}`);
+    if (endTime <= startTime) {
+      Swal.fire({ icon: "warning", title: "Invalid Time Range", text: "End time must be after start time" });
+      return;
+    }
+
+    const diffMinutes = Math.floor((endTime - startTime) / 60000);
+
+    const newEntry = {
+      date,
+      start,
+      end,
+      hours: Math.floor(diffMinutes / 60),
+      minutes: diffMinutes % 60,
+      minutesTotal: diffMinutes,
+      note: note || "",
+      uid: user.uid,
+    };
+
+    try {
+      const docRef = await addDoc(timeCollection, newEntry);
+      newEntry.id = docRef.id;
+      allEntries.push(newEntry);
+
+      filterThisMonthEntries();
+
+      closeAddEntryModal();
+
+      Swal.fire({
+        icon: "success",
+        title: "Time Added!",
+        timer: 1200,
+        showConfirmButton: false,
+      });
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Failed to save entry",
+        text: error.message,
+      });
+    }
+  };
 
   // ------------------ History Modal Functions ------------------
   window.openHistoryModal = function() {
@@ -418,7 +908,7 @@
     if (historyEntries.length === 0) {
       historyList.innerHTML = `
         <tr>
-          <td colspan="4" class="p-12 text-center text-gray-400">
+          <td colspan="5" class="p-12 text-center text-gray-400">
             <i class="fa-solid fa-clock text-6xl mb-4 block text-indigo-200"></i>
             <p class="text-xl font-semibold text-gray-500">No entries found</p>
             <p class="text-sm text-gray-400 mt-2">Try adjusting your filters</p>
@@ -430,12 +920,14 @@
     }
 
     historyEntries.forEach(entry => {
+      const noteDisplay = entry.note ? `<span class="text-gray-600 italic">${entry.note}</span>` : `<span class="text-gray-400 italic">No note</span>`;
       const row = `
         <tr class="hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 transition-all duration-200">
           <td class="p-5 text-gray-700 font-medium">${formatDate(entry.date)}</td>
           <td class="p-5 text-gray-600">${formatTime(entry.start)}</td>
           <td class="p-5 text-gray-600">${formatTime(entry.end)}</td>
           <td class="p-5 font-bold text-lg bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">${entry.hours}h ${entry.minutes}m</td>
+          <td class="p-5">${noteDisplay}</td>
         </tr>
       `;
       historyList.insertAdjacentHTML("beforeend", row);
@@ -484,7 +976,7 @@
     }
 
     const csvRows = [];
-    csvRows.push("Date,Start Time,End Time,Duration (Hours),Duration (Minutes)");
+    csvRows.push("Date,Start Time,End Time,Duration (Hours),Duration (Minutes),Note");
 
     historyEntries.forEach(entry => {
       const row = [
@@ -492,7 +984,8 @@
         formatTime(entry.start),
         formatTime(entry.end),
         entry.hours,
-        entry.minutes
+        entry.minutes,
+        `"${(entry.note || "").replace(/"/g, '""')}"`
       ].join(",");
       csvRows.push(row);
     });
@@ -515,25 +1008,6 @@
     });
   };
 
-  // ------------------ Flatpickr Time Pickers ------------------
-  const startPicker = flatpickr("#start", {
-    enableTime: true,
-    noCalendar: true,
-    dateFormat: "h:i K",
-    time_24hr: false,
-    defaultDate: new Date(),
-    minuteIncrement: 15,
-  });
-
-  const endPicker = flatpickr("#end", {
-    enableTime: true,
-    noCalendar: true,
-    dateFormat: "h:i K",
-    time_24hr: false,
-    defaultDate: new Date(new Date().getTime() + 60 * 60 * 1000),
-    minuteIncrement: 15,
-  });
-
   // ------------------ Export This Month to CSV ------------------
   window.exportToCSV = function() {
     if (entries.length === 0) {
@@ -542,7 +1016,7 @@
     }
 
     const csvRows = [];
-    csvRows.push("Date,Start Time,End Time,Duration (Hours),Duration (Minutes)");
+    csvRows.push("Date,Start Time,End Time,Duration (Hours),Duration (Minutes),Note");
 
     entries.forEach(entry => {
       const row = [
@@ -550,7 +1024,8 @@
         formatTime(entry.start),
         formatTime(entry.end),
         entry.hours,
-        entry.minutes
+        entry.minutes,
+        `"${(entry.note || "").replace(/"/g, '""')}"`
       ].join(",");
       csvRows.push(row);
     });
@@ -615,60 +1090,7 @@
     refreshTable();
   }
 
-  // ------------------ Expose Functions ------------------
-  window.addEntry = async function () {
-    const date = document.getElementById("date").value;
-    const start = document.getElementById("start").value;
-    const end = document.getElementById("end").value;
-
-    if (!date || !start || !end) {
-      Swal.fire({ icon: "error", title: "Missing Fields" });
-      return;
-    }
-
-    const startTime = new Date(`${date} ${start}`);
-    const endTime = new Date(`${date} ${end}`);
-    if (endTime <= startTime) {
-      Swal.fire({ icon: "warning", title: "Invalid Time Range" });
-      return;
-    }
-
-    const diffMinutes = Math.floor((endTime - startTime) / 60000);
-
-    const newEntry = {
-      date,
-      start,
-      end,
-      hours: Math.floor(diffMinutes / 60),
-      minutes: diffMinutes % 60,
-      minutesTotal: diffMinutes,
-      uid: user.uid,
-    };
-
-    try {
-      const docRef = await addDoc(timeCollection, newEntry);
-      newEntry.id = docRef.id;
-      allEntries.push(newEntry);
-
-      filterThisMonthEntries();
-
-      Swal.fire({
-        icon: "success",
-        title: "Time Added!",
-        timer: 1200,
-        showConfirmButton: false,
-      });
-
-      startPicker.setDate(new Date(), true);
-      endPicker.setDate(new Date(new Date().getTime() + 60 * 60 * 1000), true);
-    } catch (error) {
-      Swal.fire({
-        icon: "error",
-        title: "Failed to save entry",
-        text: error.message,
-      });
-    }
-  };
+  // ------------------ Delete Functions ------------------
 
   window.deleteEntry = async function (index) {
     const entry = entries[index];
@@ -687,7 +1109,6 @@
     try {
       await deleteDoc(doc(db, "timeEntries", entry.id));
       
-      // Remove from both arrays
       allEntries = allEntries.filter(e => e.id !== entry.id);
       entries.splice(index, 1);
       totalMinutes -= entry.minutesTotal;
@@ -724,7 +1145,6 @@
       entries.forEach((entry) => batch.delete(doc(db, "timeEntries", entry.id)));
       await batch.commit();
       
-      // Remove deleted entries from allEntries
       const deletedIds = entries.map(e => e.id);
       allEntries = allEntries.filter(e => !deletedIds.includes(e.id));
       
@@ -758,13 +1178,13 @@
     });
   };
 
-  document.getElementById("date").valueAsDate = new Date();
-
   onAuthStateChanged(auth, (u) => {
     if (u) {
       user = u;
       showLoading();
-      loadFromFirestore();
+      loadFromFirestore().then(() => {
+        loadUserPreference();
+      });
     } else {
       Swal.fire({
         icon: "warning",
@@ -775,7 +1195,6 @@
     }
   });
 
-  // ------------------ Add click events to table headers ------------------
   document.querySelectorAll("th").forEach((th) => {
     const fieldMap = { Date: "date", Start: "start", End: "end", Duration: "duration" };
     const field = fieldMap[th.textContent.trim()];
@@ -785,7 +1204,6 @@
     }
   });
 
-  //loading overlay management
   function showLoading() {
     document.getElementById("loading").classList.remove("hidden");
   }
