@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Time Tracker</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -44,8 +45,8 @@
       
       /* Custom scrollbar */
       ::-webkit-scrollbar {
-        width: 10px;
-        height: 10px;
+        width: 8px;
+        height: 8px;
       }
       ::-webkit-scrollbar-track {
         background: #f1f1f1;
@@ -58,202 +59,430 @@
       ::-webkit-scrollbar-thumb:hover {
         background: linear-gradient(to bottom, #4f46e5, #9333ea);
       }
+
+      /* Mobile optimizations */
+      @media (max-width: 768px) {
+        .flatpickr-calendar {
+          width: 90vw !important;
+          max-width: 350px !important;
+        }
+        
+        /* Prevent zoom on input focus */
+        input[type="text"],
+        input[type="date"],
+        input[type="time"],
+        textarea,
+        select {
+          font-size: 16px !important;
+        }
+      }
+
+      /* Extra small screens */
+      @media (min-width: 475px) {
+        .xs\:inline {
+          display: inline;
+        }
+      }
+
+      /* Ensure header doesn't overflow */
+      @media (max-width: 374px) {
+        header h1 {
+          font-size: 1rem !important;
+        }
+        header h1 i {
+          font-size: 0.875rem !important;
+        }
+        header button {
+          padding-left: 0.5rem !important;
+          padding-right: 0.5rem !important;
+          min-width: 60px !important;
+        }
+      }
+
+      /* Force hide desktop buttons on mobile */
+      @media (max-width: 767px) {
+        .desktop-buttons {
+          display: none !important;
+        }
+        .mobile-hamburger {
+          display: flex !important;
+        }
+      }
+
+      /* Force show desktop buttons on desktop */
+      @media (min-width: 768px) {
+        .desktop-buttons {
+          display: flex !important;
+        }
+        .mobile-hamburger {
+          display: none !important;
+        }
+      }
+
+      /* Card animation */
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      
+      .animate-slideUp {
+        animation: slideUp 0.4s ease-out;
+      }
+
+      /* Menu slide animation */
+      @keyframes slideIn {
+        from {
+          transform: translateX(100%);
+        }
+        to {
+          transform: translateX(0);
+        }
+      }
+      
+      .menu-slide-in {
+        animation: slideIn 0.3s ease-out;
+      }
+
+      /* Improved table scroll on mobile */
+      .table-container {
+        -webkit-overflow-scrolling: touch;
+      }
+
+      /* Line clamp for truncating text */
+      .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      /* Prevent text selection on buttons for better mobile UX */
+      button {
+        -webkit-tap-highlight-color: transparent;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        user-select: none;
+      }
     </style>
   </head>
 
-  <body class="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 min-h-screen p-6 pt-0">
-    <header
-      class="sticky r-2 top-0 z-50 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 flex justify-between items-center mb-8 p-6 shadow-2xl rounded-2xl backdrop-blur-lg"
-    >
-      <h1 class="text-4xl font-bold text-white flex items-center gap-3">
-        <i class="fa-solid fa-clock animate-pulse"></i> Time Tracker
-      </h1>
-      <div class="flex items-center gap-4">
+  <body class="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 min-h-screen pb-6">
+    <!-- Mobile Menu Overlay -->
+    <div id="menuOverlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9998] hidden transition-opacity duration-300" onclick="closeMenu()"></div>
+    
+    <!-- Mobile Sidebar Menu -->
+    <div id="mobileMenu" class="fixed top-0 right-0 h-full w-72 bg-white shadow-2xl z-[9999] transform translate-x-full transition-transform duration-300 ease-in-out">
+      <div class="flex flex-col h-full">
+        <!-- Menu Header -->
+        <div class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 flex justify-between items-center p-5 shadow-lg">
+          <h2 class="text-white font-bold text-xl flex items-center gap-3">
+            <i class="fa-solid fa-clock"></i>
+            Menu
+          </h2>
+          <button onclick="closeMenu()" type="button" class="text-white hover:text-gray-200 text-2xl transition-transform hover:rotate-90 duration-300 w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/10">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+        
+        <!-- Menu Items -->
+        <div class="flex-1 overflow-y-auto p-4 bg-gray-50">
+          <nav class="space-y-3">
+            <button
+              type="button"
+              onclick="switchMode(); closeMenu();"
+              class="w-full bg-white hover:bg-indigo-50 text-gray-800 px-4 py-4 rounded-xl flex items-center gap-3 transition-all duration-300 border-2 border-gray-200 hover:border-indigo-300 text-left group shadow-sm hover:shadow-md"
+            >
+              <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-lg flex items-center justify-center">
+                <i class="fa-solid fa-repeat text-white text-lg group-hover:rotate-180 transition-transform duration-300"></i>
+              </div>
+              <span class="font-semibold">Switch Mode</span>
+            </button>
+            
+            <button
+              type="button"
+              onclick="openHistoryModal(); closeMenu();"
+              class="w-full bg-white hover:bg-purple-50 text-gray-800 px-4 py-4 rounded-xl flex items-center gap-3 transition-all duration-300 border-2 border-gray-200 hover:border-purple-300 text-left group shadow-sm hover:shadow-md"
+            >
+              <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+                <i class="fa-solid fa-clock-rotate-left text-white text-lg group-hover:scale-110 transition-transform duration-300"></i>
+              </div>
+              <span class="font-semibold">View History</span>
+            </button>
+            
+            <button
+              type="button"
+              onclick="exportToCSV(); closeMenu();"
+              class="w-full bg-white hover:bg-green-50 text-gray-800 px-4 py-4 rounded-xl flex items-center gap-3 transition-all duration-300 border-2 border-gray-200 hover:border-green-300 text-left group shadow-sm hover:shadow-md"
+            >
+              <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-500 rounded-lg flex items-center justify-center">
+                <i class="fa-solid fa-file-export text-white text-lg group-hover:scale-110 transition-transform duration-300"></i>
+              </div>
+              <span class="font-semibold">Export CSV</span>
+            </button>
+            
+            <div class="border-t-2 border-gray-300 my-4"></div>
+            
+            <button
+              type="button"
+              onclick="logoutUser()"
+              class="w-full bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white px-4 py-4 rounded-xl flex items-center gap-3 transition-all duration-300 border-2 border-red-400 text-left group shadow-md hover:shadow-lg"
+            >
+              <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
+                <i class="fa-solid fa-right-from-bracket text-white text-lg group-hover:translate-x-1 transition-transform duration-300"></i>
+              </div>
+              <span class="font-semibold">Logout</span>
+            </button>
+          </nav>
+        </div>
+        
+        <!-- Menu Footer -->
+        <div class="p-4 border-t-2 border-gray-200 bg-white">
+          <div class="text-gray-500 text-sm text-center font-medium">
+            <i class="fa-solid fa-clock text-indigo-500"></i> Time Tracker v1.0
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile-optimized header -->
+    <header class="sticky top-0 z-50 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 shadow-2xl mb-4 md:mb-6">
+      <div class="flex justify-between items-center p-4 md:p-6 max-w-7xl mx-auto">
+        <h1 class="text-xl md:text-3xl lg:text-4xl font-bold text-white flex items-center gap-2 md:gap-3 flex-shrink-0">
+          <i class="fa-solid fa-clock animate-pulse text-lg md:text-2xl lg:text-3xl"></i>
+          <span>Time Tracker</span>
+        </h1>
+        
+        <!-- Desktop Buttons (visible on desktop only) -->
+        <div class="desktop-buttons hidden md:flex items-center gap-2 lg:gap-4 flex-shrink-0">
+          <button
+            onclick="switchMode()"
+            class="bg-white/20 backdrop-blur-md hover:bg-white/30 active:bg-white/40 text-white px-4 py-2 lg:px-6 lg:py-2.5 rounded-xl flex items-center justify-center gap-2 transition-all duration-300 transform active:scale-95 hover:scale-105 border border-white/30 text-sm lg:text-base whitespace-nowrap"
+          >
+            <i class="fa-solid fa-repeat text-sm lg:text-base"></i>
+            <span>Switch Mode</span>
+          </button>
+          <button
+            onclick="logoutUser()"
+            class="bg-white/20 backdrop-blur-md hover:bg-white/30 active:bg-white/40 text-white px-4 py-2 lg:px-6 lg:py-2.5 rounded-xl flex items-center justify-center gap-2 transition-all duration-300 transform active:scale-95 hover:scale-105 border border-white/30 text-sm lg:text-base whitespace-nowrap"
+          >
+            <i class="fa-solid fa-right-from-bracket text-sm lg:text-base"></i>
+            <span>Logout</span>
+          </button>
+        </div>
+        
+        <!-- Mobile Hamburger Menu (visible on mobile only) -->
         <button
-          onclick="switchMode()"
-          id="switchModeBtn"
-          class="bg-white/20 backdrop-blur-md hover:bg-white/30 text-white px-6 py-2.5 rounded-xl flex items-center gap-2 transition-all duration-300 transform hover:scale-105 border border-white/30"
+          onclick="openMenu()"
+          class="mobile-hamburger md:hidden bg-white/20 backdrop-blur-md hover:bg-white/30 active:bg-white/40 text-white w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 transform active:scale-95 border border-white/30 shadow-lg relative z-50"
+          aria-label="Open menu"
+          type="button"
         >
-          <i class="fa-solid fa-repeat"></i> <span id="switchModeText">Switch Mode</span>
-        </button>
-        <button
-          onclick="logoutUser()"
-          class="bg-white/20 backdrop-blur-md hover:bg-white/30 text-white px-6 py-2.5 rounded-xl flex items-center gap-2 transition-all duration-300 transform hover:scale-105 border border-white/30"
-        >
-          <i class="fa-solid fa-right-from-bracket"></i> Logout
+          <i class="fa-solid fa-bars text-2xl pointer-events-none"></i>
         </button>
       </div>
     </header>
 
-    <div class="bg-white/90 backdrop-blur-xl shadow-2xl rounded-3xl w-full max-w-6xl mx-auto p-8 border border-white/20">
-      <!-- View Button -->
-      <div class="flex gap-3 mb-8">
-        <button
-          onclick="openHistoryModal()"
-          class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-2xl px-8 py-4 font-bold text-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-3 shadow-lg hover:shadow-2xl"
-        >
-          <i class="fa-solid fa-clock-rotate-left text-xl"></i> View History
-        </button>
-      </div>
+    <div class="p-3 md:p-6 lg:p-8 max-w-7xl mx-auto">
+      <div class="bg-white/90 backdrop-blur-xl shadow-2xl rounded-2xl md:rounded-3xl p-4 md:p-8 border border-white/20 animate-slideUp">
+        
+        <!-- Mobile Quick Actions - Visible on mobile only -->
+        <div class="md:hidden mb-4 flex gap-2">
+          <button
+            onclick="openHistoryModal()"
+            class="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl px-4 py-3 font-bold text-sm hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 transform active:scale-95 flex items-center justify-center gap-2 shadow-lg"
+          >
+            <i class="fa-solid fa-clock-rotate-left text-base"></i> 
+            <span>History</span>
+          </button>
+          <button
+            onclick="exportToCSV()"
+            class="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl px-4 py-3 font-bold text-sm hover:from-green-600 hover:to-emerald-700 transition-all duration-300 transform active:scale-95 flex items-center justify-center gap-2 shadow-lg"
+          >
+            <i class="fa-solid fa-file-export text-base"></i> 
+            <span>Export</span>
+          </button>
+        </div>
+        
+        <!-- View History Button - Desktop only, on mobile it's in quick actions -->
+        <div class="mb-4 md:mb-8 hidden md:block">
+          <button
+            onclick="openHistoryModal()"
+            class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl md:rounded-2xl px-6 md:px-8 py-3 md:py-4 font-bold text-sm md:text-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2 md:gap-3 shadow-lg hover:shadow-2xl"
+          >
+            <i class="fa-solid fa-clock-rotate-left text-lg md:text-xl"></i> 
+            <span>View History</span>
+          </button>
+        </div>
 
-      <!-- Realtime Tracking Section -->
-      <div id="realtimeSection" class="hidden mb-8">
-        <div class="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 p-8 rounded-2xl border-2 border-indigo-200 shadow-lg">
-          <div class="text-center mb-6">
-            <h2 class="text-3xl font-black bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-2">
-              Realtime Tracking
-            </h2>
-            <p class="text-gray-600 font-medium">Track your time as it happens</p>
-          </div>
-          
-          <div class="flex flex-col items-center gap-6">
-            <div class="text-center">
-              <div id="realtimeDisplay" class="text-6xl font-black bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-2">
-                00:00:00
-              </div>
-              <div id="realtimeDate" class="text-lg text-gray-600 font-medium"></div>
+        <!-- Realtime Tracking Section - Mobile optimized -->
+        <div id="realtimeSection" class="hidden mb-6 md:mb-8">
+          <div class="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 p-4 md:p-8 rounded-xl md:rounded-2xl border-2 border-indigo-200 shadow-lg">
+            <div class="text-center mb-4 md:mb-6">
+              <h2 class="text-2xl md:text-3xl font-black bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-2">
+                Realtime Tracking
+              </h2>
+              <p class="text-sm md:text-base text-gray-600 font-medium">Track your time as it happens</p>
             </div>
             
-            <div class="w-full max-w-md">
-              <div class="relative group">
-                <i class="fa-solid fa-note-sticky absolute left-4 top-4 text-indigo-400 group-focus-within:text-indigo-600 transition-colors"></i>
-                <textarea
-                  id="realtimeNote"
-                  placeholder="Add a note about this task (optional)"
-                  rows="3"
-                  class="w-full border-2 border-gray-200 rounded-xl pl-12 pr-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-300 bg-gray-50 hover:bg-white resize-none"
-                ></textarea>
+            <div class="flex flex-col items-center gap-4 md:gap-6">
+              <div class="text-center">
+                <div id="realtimeDisplay" class="text-4xl md:text-6xl font-black bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-2">
+                  00:00:00
+                </div>
+                <div id="realtimeDate" class="text-base md:text-lg text-gray-600 font-medium"></div>
               </div>
-            </div>
-            
-            <div class="flex gap-4">
-              <button
-                id="startBtn"
-                onclick="startRealtime()"
-                class="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-10 py-4 rounded-2xl font-bold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-3"
-              >
-                <i class="fa-solid fa-play text-xl"></i> Start
-              </button>
               
-              <button
-                id="stopBtn"
-                onclick="stopRealtime()"
-                disabled
-                class="bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white px-10 py-4 rounded-2xl font-bold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-              >
-                <i class="fa-solid fa-stop text-xl"></i> Stop
-              </button>
+              <div class="w-full max-w-md">
+                <div class="relative group">
+                  <i class="fa-solid fa-note-sticky absolute left-3 md:left-4 top-3 md:top-4 text-indigo-400 group-focus-within:text-indigo-600 transition-colors"></i>
+                  <textarea
+                    id="realtimeNote"
+                    placeholder="Add a note about this task (optional)"
+                    rows="3"
+                    class="w-full border-2 border-gray-200 rounded-xl pl-10 md:pl-12 pr-3 md:pr-4 py-2 md:py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-300 bg-gray-50 hover:bg-white resize-none text-sm md:text-base"
+                  ></textarea>
+                </div>
+              </div>
+              
+              <div class="flex flex-col sm:flex-row gap-3 md:gap-4 w-full sm:w-auto">
+                <button
+                  id="startBtn"
+                  onclick="startRealtime()"
+                  class="w-full sm:w-auto bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-8 md:px-10 py-3 md:py-4 rounded-xl md:rounded-2xl font-bold text-base md:text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center gap-2 md:gap-3"
+                >
+                  <i class="fa-solid fa-play text-lg md:text-xl"></i> Start
+                </button>
+                
+                <button
+                  id="stopBtn"
+                  onclick="stopRealtime()"
+                  disabled
+                  class="w-full sm:w-auto bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white px-8 md:px-10 py-3 md:py-4 rounded-xl md:rounded-2xl font-bold text-base md:text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center gap-2 md:gap-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                >
+                  <i class="fa-solid fa-stop text-lg md:text-xl"></i> Stop
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Manual Input Section -->
-      <div id="manualSection" class="hidden">
-        <div class="flex gap-3 mb-8 justify-start">
-          <button
-            onclick="openAddEntryModal()"
-            class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl px-8 py-4 font-bold text-lg hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
-          >
-            <i class="fa-solid fa-plus text-xl"></i> Add Entry
-          </button>
+        <!-- Manual Input Section - Mobile optimized -->
+        <div id="manualSection" class="hidden">
+          <div class="flex flex-col sm:flex-row gap-2 sm:gap-3 mb-6 md:mb-8 justify-start">
+            <button
+              onclick="openAddEntryModal()"
+              class="w-full sm:w-auto bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl px-5 sm:px-6 md:px-8 py-3 md:py-4 font-bold text-sm sm:text-base md:text-lg hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
+            >
+              <i class="fa-solid fa-plus text-base sm:text-lg md:text-xl"></i> 
+              <span>Add Entry</span>
+            </button>
 
+            <button
+              onclick="deleteAllEntries()"
+              class="w-full sm:w-auto bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-xl px-5 sm:px-6 md:px-8 py-3 md:py-4 font-bold text-sm sm:text-base md:text-lg hover:from-red-600 hover:to-pink-700 transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
+            >
+              <i class="fa-solid fa-trash-can text-base sm:text-lg md:text-xl"></i> 
+              <span>Delete All</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Mobile-optimized table -->
+        <div class="overflow-x-auto rounded-xl md:rounded-2xl border-2 border-gray-100 mb-6 md:mb-8 shadow-lg table-container bg-white">
+          <table class="w-full border-collapse min-w-[550px]">
+            <thead>
+              <tr class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
+                <th class="p-2.5 sm:p-3 md:p-5 text-left font-bold text-[10px] sm:text-xs md:text-sm uppercase tracking-wider whitespace-nowrap">Date</th>
+                <th class="p-2.5 sm:p-3 md:p-5 text-left font-bold text-[10px] sm:text-xs md:text-sm uppercase tracking-wider whitespace-nowrap">Start</th>
+                <th class="p-2.5 sm:p-3 md:p-5 text-left font-bold text-[10px] sm:text-xs md:text-sm uppercase tracking-wider whitespace-nowrap">End</th>
+                <th class="p-2.5 sm:p-3 md:p-5 text-left font-bold text-[10px] sm:text-xs md:text-sm uppercase tracking-wider whitespace-nowrap">Duration</th>
+                <th class="p-2.5 sm:p-3 md:p-5 text-center font-bold text-[10px] sm:text-xs md:text-sm uppercase tracking-wider whitespace-nowrap">Action</th>
+              </tr>
+            </thead>
+            <tbody id="list" class="divide-y divide-gray-100 bg-white"></tbody>
+          </table>
+        </div>
+
+        <!-- Total section - Mobile optimized -->
+        <div class="flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-0 bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 p-4 md:p-6 rounded-xl md:rounded-2xl border-2 border-indigo-100 shadow-lg mb-4 md:mb-6">
+          <span class="font-bold text-indigo-700 text-lg md:text-2xl flex items-center gap-2 md:gap-3">
+            <i class="fa-solid fa-chart-pie text-2xl md:text-3xl"></i> Total Time This Month
+          </span>
+          <span id="total" class="text-3xl md:text-4xl font-black bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">0h 0m</span>
+        </div>
+
+        <!-- Export Button - Desktop only, on mobile it's in the menu -->
+        <div class="mt-6 hidden md:flex justify-center">
           <button
-            onclick="deleteAllEntries()"
-            class="bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-xl px-8 py-4 font-bold text-lg hover:from-red-600 hover:to-pink-700 transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
+            onclick="exportToCSV()"
+            class="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-8 py-4 rounded-2xl flex items-center gap-3 font-bold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
           >
-            <i class="fa-solid fa-trash-can text-xl"></i> Delete All
+            <i class="fa-solid fa-file-export text-xl"></i> Export to CSV
           </button>
         </div>
-      </div>
-
-      <div class="overflow-x-auto rounded-2xl border-2 border-gray-100 mb-8 shadow-lg">
-        <table class="w-full border-collapse">
-          <thead>
-            <tr class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
-              <th class="p-5 text-left font-bold text-sm uppercase tracking-wider">Date</th>
-              <th class="p-5 text-left font-bold text-sm uppercase tracking-wider">Start</th>
-              <th class="p-5 text-left font-bold text-sm uppercase tracking-wider">End</th>
-              <th class="p-5 text-left font-bold text-sm uppercase tracking-wider">Duration</th>
-              <th class="p-5 text-center font-bold text-sm uppercase tracking-wider">Action</th>
-            </tr>
-          </thead>
-          <tbody id="list" class="divide-y divide-gray-100"></tbody>
-        </table>
-      </div>
-
-      <div class="flex justify-between items-center bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 p-6 rounded-2xl border-2 border-indigo-100 shadow-lg">
-        <span class="font-bold text-indigo-700 text-2xl flex items-center gap-3">
-          <i class="fa-solid fa-chart-pie text-3xl"></i> Total Time This Month
-        </span>
-        <span id="total" class="text-4xl font-black bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">0h 0m</span>
-      </div>
-
-      <!-- Export Button -->
-      <div class="mt-6 flex justify-center">
-        <button
-          onclick="exportToCSV()"
-          class="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-8 py-4 rounded-2xl flex items-center gap-3 font-bold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
-        >
-          <i class="fa-solid fa-file-export text-xl"></i> Export to CSV
-        </button>
       </div>
     </div>
 
-<!-- Mode Selection Modal -->
+<!-- Mode Selection Modal - Mobile optimized -->
 <div id="modeSelectionModal" class="fixed inset-0 bg-black/70 backdrop-blur-md z-[10000] hidden flex items-center justify-center p-4">
-  <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden animate-fadeIn">
-    <div class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 p-8 text-center">
-      <i class="fa-solid fa-clock text-6xl text-white mb-4"></i>
-      <h2 class="text-3xl font-black text-white">Choose Your Tracking Mode</h2>
-      <p class="text-white/90 mt-2">Select how you want to track your time</p>
+  <div class="bg-white rounded-2xl md:rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden animate-fadeIn">
+    <div class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 p-6 md:p-8 text-center">
+      <i class="fa-solid fa-clock text-5xl md:text-6xl text-white mb-3 md:mb-4"></i>
+      <h2 class="text-2xl md:text-3xl font-black text-white">Choose Your Tracking Mode</h2>
+      <p class="text-white/90 mt-2 text-sm md:text-base">Select how you want to track your time</p>
     </div>
     
-    <div class="p-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="p-4 md:p-8 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
       <button
         onclick="selectMode('realtime')"
-        class="group bg-gradient-to-br from-green-50 to-emerald-50 hover:from-green-100 hover:to-emerald-100 border-2 border-green-200 hover:border-green-400 rounded-2xl p-8 transition-all duration-300 transform hover:scale-105 hover:shadow-xl"
+        class="group bg-gradient-to-br from-green-50 to-emerald-50 hover:from-green-100 hover:to-emerald-100 border-2 border-green-200 hover:border-green-400 rounded-xl md:rounded-2xl p-6 md:p-8 transition-all duration-300 transform hover:scale-105 hover:shadow-xl"
       >
         <div class="text-center">
-          <i class="fa-solid fa-stopwatch text-6xl text-green-600 group-hover:text-green-700 mb-4"></i>
-          <h3 class="text-2xl font-bold text-gray-800 mb-2">Realtime Tracking</h3>
-          <p class="text-gray-600 text-sm">Start and stop timer as you work</p>
+          <i class="fa-solid fa-stopwatch text-5xl md:text-6xl text-green-600 group-hover:text-green-700 mb-3 md:mb-4"></i>
+          <h3 class="text-xl md:text-2xl font-bold text-gray-800 mb-2">Realtime Tracking</h3>
+          <p class="text-gray-600 text-xs md:text-sm">Start and stop timer as you work</p>
         </div>
       </button>
       
       <button
         onclick="selectMode('manual')"
-        class="group bg-gradient-to-br from-indigo-50 to-purple-50 hover:from-indigo-100 hover:to-purple-100 border-2 border-indigo-200 hover:border-indigo-400 rounded-2xl p-8 transition-all duration-300 transform hover:scale-105 hover:shadow-xl"
+        class="group bg-gradient-to-br from-indigo-50 to-purple-50 hover:from-indigo-100 hover:to-purple-100 border-2 border-indigo-200 hover:border-indigo-400 rounded-xl md:rounded-2xl p-6 md:p-8 transition-all duration-300 transform hover:scale-105 hover:shadow-xl"
       >
         <div class="text-center">
-          <i class="fa-solid fa-keyboard text-6xl text-indigo-600 group-hover:text-indigo-700 mb-4"></i>
-          <h3 class="text-2xl font-bold text-gray-800 mb-2">Manual Input</h3>
-          <p class="text-gray-600 text-sm">Enter start and end times manually</p>
+          <i class="fa-solid fa-keyboard text-5xl md:text-6xl text-indigo-600 group-hover:text-indigo-700 mb-3 md:mb-4"></i>
+          <h3 class="text-xl md:text-2xl font-bold text-gray-800 mb-2">Manual Input</h3>
+          <p class="text-gray-600 text-xs md:text-sm">Enter start and end times manually</p>
         </div>
       </button>
     </div>
   </div>
 </div>
 
-<!-- History Modal -->
-<div id="historyModal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-[9999] hidden flex items-center justify-center p-4">
-  <div class="bg-white rounded-3xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col animate-fadeIn">
+<!-- History Modal - Mobile optimized -->
+<div id="historyModal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-[9999] hidden flex items-center justify-center p-2 md:p-4">
+  <div class="bg-white rounded-2xl md:rounded-3xl shadow-2xl w-full max-w-6xl max-h-[95vh] md:max-h-[90vh] overflow-hidden flex flex-col animate-fadeIn">
     <!-- Modal Header -->
-    <div class="bg-gradient-to-r from-purple-600 via-indigo-600 to-pink-600 p-8 flex justify-between items-center">
-      <h2 class="text-3xl font-black text-white flex items-center gap-3">
-        <i class="fa-solid fa-clock-rotate-left text-4xl"></i> History
+    <div class="bg-gradient-to-r from-purple-600 via-indigo-600 to-pink-600 p-4 md:p-8 flex justify-between items-center">
+      <h2 class="text-2xl md:text-3xl font-black text-white flex items-center gap-2 md:gap-3">
+        <i class="fa-solid fa-clock-rotate-left text-3xl md:text-4xl"></i> History
       </h2>
-      <button onclick="closeHistoryModal()" class="text-white hover:text-gray-200 text-3xl transition-transform hover:rotate-90 duration-300">
+      <button onclick="closeHistoryModal()" class="text-white hover:text-gray-200 text-2xl md:text-3xl transition-transform hover:rotate-90 duration-300">
         <i class="fa-solid fa-xmark"></i>
       </button>
     </div>
 
-    <!-- Filter Section -->
-    <div class="p-6 bg-gradient-to-r from-purple-50 via-indigo-50 to-pink-50 border-b-2 border-indigo-100">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <!-- Filter Section - Mobile optimized -->
+    <div class="p-4 md:p-6 bg-gradient-to-r from-purple-50 via-indigo-50 to-pink-50 border-b-2 border-indigo-100">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
         <div>
-          <label class="block text-sm font-bold text-indigo-700 mb-2 uppercase tracking-wide">Month</label>
-          <select id="modalFilterMonth" onchange="applyModalFilter()" class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all bg-white">
+          <label class="block text-xs md:text-sm font-bold text-indigo-700 mb-2 uppercase tracking-wide">Month</label>
+          <select id="modalFilterMonth" onchange="applyModalFilter()" class="w-full border-2 border-gray-200 rounded-xl px-3 md:px-4 py-2 md:py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all bg-white text-sm md:text-base">
             <option value="">All Months</option>
             <option value="0">January</option>
             <option value="1">February</option>
@@ -270,165 +499,165 @@
           </select>
         </div>
         <div>
-          <label class="block text-sm font-bold text-indigo-700 mb-2 uppercase tracking-wide">Year</label>
-          <select id="modalFilterYear" onchange="applyModalFilter()" class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all bg-white">
+          <label class="block text-xs md:text-sm font-bold text-indigo-700 mb-2 uppercase tracking-wide">Year</label>
+          <select id="modalFilterYear" onchange="applyModalFilter()" class="w-full border-2 border-gray-200 rounded-xl px-3 md:px-4 py-2 md:py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all bg-white text-sm md:text-base">
             <option value="">All Years</option>
           </select>
         </div>
         <div class="flex items-end">
-          <button onclick="clearModalFilter()" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl px-4 py-3 font-bold hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
+          <button onclick="clearModalFilter()" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl px-3 md:px-4 py-2 md:py-3 font-bold text-sm md:text-base hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
             <i class="fa-solid fa-filter-circle-xmark"></i> Clear Filter
           </button>
         </div>
       </div>
     </div>
 
-    <!-- Modal Body -->
-    <div class="flex-1 overflow-auto p-6 bg-gray-50">
-      <div class="overflow-x-auto rounded-2xl border-2 border-gray-100 mb-4 shadow-lg bg-white">
-        <table class="w-full border-collapse">
+    <!-- Modal Body - Mobile optimized -->
+    <div class="flex-1 overflow-auto p-3 md:p-6 bg-gray-50">
+      <div class="overflow-x-auto rounded-xl md:rounded-2xl border-2 border-gray-100 mb-4 shadow-lg bg-white table-container">
+        <table class="w-full border-collapse min-w-[550px]">
           <thead>
             <tr class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
-              <th class="p-5 text-left font-bold text-sm uppercase tracking-wider">Date</th>
-              <th class="p-5 text-left font-bold text-sm uppercase tracking-wider">Start</th>
-              <th class="p-5 text-left font-bold text-sm uppercase tracking-wider">End</th>
-              <th class="p-5 text-left font-bold text-sm uppercase tracking-wider">Duration</th>
-              <th class="p-5 text-left font-bold text-sm uppercase tracking-wider">Note</th>
+              <th class="p-2.5 sm:p-3 md:p-5 text-left font-bold text-[10px] sm:text-xs md:text-sm uppercase tracking-wider whitespace-nowrap">Date</th>
+              <th class="p-2.5 sm:p-3 md:p-5 text-left font-bold text-[10px] sm:text-xs md:text-sm uppercase tracking-wider whitespace-nowrap">Start</th>
+              <th class="p-2.5 sm:p-3 md:p-5 text-left font-bold text-[10px] sm:text-xs md:text-sm uppercase tracking-wider whitespace-nowrap">End</th>
+              <th class="p-2.5 sm:p-3 md:p-5 text-left font-bold text-[10px] sm:text-xs md:text-sm uppercase tracking-wider whitespace-nowrap">Duration</th>
+              <th class="p-2.5 sm:p-3 md:p-5 text-left font-bold text-[10px] sm:text-xs md:text-sm uppercase tracking-wider">Note</th>
             </tr>
           </thead>
-          <tbody id="historyList" class="divide-y divide-gray-100"></tbody>
+          <tbody id="historyList" class="divide-y divide-gray-100 bg-white"></tbody>
         </table>
       </div>
 
-      <div class="flex justify-between items-center bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 p-6 rounded-2xl border-2 border-indigo-100 shadow-lg">
-        <span class="font-bold text-indigo-700 text-2xl flex items-center gap-3">
-          <i class="fa-solid fa-chart-pie text-3xl"></i> Total Time
+      <div class="flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-0 bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 p-4 md:p-6 rounded-xl md:rounded-2xl border-2 border-indigo-100 shadow-lg">
+        <span class="font-bold text-indigo-700 text-lg md:text-2xl flex items-center gap-2 md:gap-3">
+          <i class="fa-solid fa-chart-pie text-2xl md:text-3xl"></i> Total Time
         </span>
-        <span id="historyTotal" class="text-4xl font-black bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">0h 0m</span>
+        <span id="historyTotal" class="text-3xl md:text-4xl font-black bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">0h 0m</span>
       </div>
     </div>
 
-    <!-- Modal Footer -->
-    <div class="p-6 bg-gradient-to-r from-gray-50 to-gray-100 border-t-2 border-gray-200 flex justify-end">
-      <button onclick="exportHistoryToCSV()" class="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-8 py-4 rounded-2xl flex items-center gap-3 font-bold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
-        <i class="fa-solid fa-file-export text-xl"></i> Export to CSV
+    <!-- Modal Footer - Mobile optimized -->
+    <div class="p-4 md:p-6 bg-gradient-to-r from-gray-50 to-gray-100 border-t-2 border-gray-200 flex justify-end">
+      <button onclick="exportHistoryToCSV()" class="w-full sm:w-auto bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-6 md:px-8 py-3 md:py-4 rounded-xl md:rounded-2xl flex items-center justify-center gap-2 md:gap-3 font-bold text-sm md:text-base transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
+        <i class="fa-solid fa-file-export text-lg md:text-xl"></i> Export to CSV
       </button>
     </div>
   </div>
 </div>
 
-<!-- Note View Modal -->
+<!-- Note View Modal - Mobile optimized -->
 <div id="noteModal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-[10001] hidden flex items-center justify-center p-4">
-  <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden animate-fadeIn">
-    <div class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 p-8 flex justify-between items-center">
-      <h2 class="text-3xl font-black text-white flex items-center gap-3">
-        <i class="fa-solid fa-note-sticky text-4xl"></i> Task Note
+  <div class="bg-white rounded-2xl md:rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden animate-fadeIn">
+    <div class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 p-4 md:p-8 flex justify-between items-center">
+      <h2 class="text-2xl md:text-3xl font-black text-white flex items-center gap-2 md:gap-3">
+        <i class="fa-solid fa-note-sticky text-3xl md:text-4xl"></i> Task Note
       </h2>
-      <button onclick="closeNoteModal()" class="text-white hover:text-gray-200 text-3xl transition-transform hover:rotate-90 duration-300">
+      <button onclick="closeNoteModal()" class="text-white hover:text-gray-200 text-2xl md:text-3xl transition-transform hover:rotate-90 duration-300">
         <i class="fa-solid fa-xmark"></i>
       </button>
     </div>
     
-    <div class="p-8">
-      <div class="mb-6">
-        <h3 class="text-sm font-bold text-indigo-700 uppercase tracking-wide mb-2">Entry Details</h3>
-        <div class="bg-gradient-to-r from-indigo-50 to-purple-50 p-4 rounded-xl">
-          <p class="text-gray-700"><strong>Date:</strong> <span id="noteModalDate"></span></p>
-          <p class="text-gray-700"><strong>Time:</strong> <span id="noteModalTime"></span></p>
+    <div class="p-4 md:p-8">
+      <div class="mb-4 md:mb-6">
+        <h3 class="text-xs md:text-sm font-bold text-indigo-700 uppercase tracking-wide mb-2">Entry Details</h3>
+        <div class="bg-gradient-to-r from-indigo-50 to-purple-50 p-3 md:p-4 rounded-xl text-sm md:text-base">
+          <p class="text-gray-700 mb-1"><strong>Date:</strong> <span id="noteModalDate"></span></p>
+          <p class="text-gray-700 mb-1"><strong>Time:</strong> <span id="noteModalTime"></span></p>
           <p class="text-gray-700"><strong>Duration:</strong> <span id="noteModalDuration"></span></p>
         </div>
       </div>
       
       <div>
-        <h3 class="text-sm font-bold text-indigo-700 uppercase tracking-wide mb-2">Note</h3>
-        <div class="bg-gray-50 p-6 rounded-xl border-2 border-gray-200 min-h-[150px]">
-          <p id="noteModalContent" class="text-gray-700 whitespace-pre-wrap"></p>
+        <h3 class="text-xs md:text-sm font-bold text-indigo-700 uppercase tracking-wide mb-2">Note</h3>
+        <div class="bg-gray-50 p-4 md:p-6 rounded-xl border-2 border-gray-200 min-h-[120px] md:min-h-[150px]">
+          <p id="noteModalContent" class="text-gray-700 whitespace-pre-wrap text-sm md:text-base"></p>
         </div>
       </div>
     </div>
     
-    <div class="p-6 bg-gradient-to-r from-gray-50 to-gray-100 border-t-2 border-gray-200 flex justify-end">
-      <button onclick="closeNoteModal()" class="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-8 py-4 rounded-2xl font-bold transition-all duration-300 transform hover:scale-105 shadow-lg">
+    <div class="p-4 md:p-6 bg-gradient-to-r from-gray-50 to-gray-100 border-t-2 border-gray-200 flex justify-end">
+      <button onclick="closeNoteModal()" class="w-full sm:w-auto bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-6 md:px-8 py-3 md:py-4 rounded-xl md:rounded-2xl font-bold text-sm md:text-base transition-all duration-300 transform hover:scale-105 shadow-lg">
         Close
       </button>
     </div>
   </div>
 </div>
 
-<!-- Add Entry Modal -->
+<!-- Add Entry Modal - Mobile optimized -->
 <div id="addEntryModal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-[10001] hidden flex items-center justify-center p-4">
-  <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden animate-fadeIn">
-    <div class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 p-8 flex justify-between items-center">
-      <h2 class="text-3xl font-black text-white flex items-center gap-3">
-        <i class="fa-solid fa-plus-circle text-4xl"></i> Add Time Entry
+  <div class="bg-white rounded-2xl md:rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden animate-fadeIn max-h-[95vh] overflow-y-auto">
+    <div class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 p-4 md:p-8 flex justify-between items-center sticky top-0 z-10">
+      <h2 class="text-2xl md:text-3xl font-black text-white flex items-center gap-2 md:gap-3">
+        <i class="fa-solid fa-plus-circle text-3xl md:text-4xl"></i> Add Time Entry
       </h2>
-      <button onclick="closeAddEntryModal()" class="text-white hover:text-gray-200 text-3xl transition-transform hover:rotate-90 duration-300">
+      <button onclick="closeAddEntryModal()" class="text-white hover:text-gray-200 text-2xl md:text-3xl transition-transform hover:rotate-90 duration-300">
         <i class="fa-solid fa-xmark"></i>
       </button>
     </div>
     
-    <div class="p-8">
-      <div class="space-y-6">
+    <div class="p-4 md:p-8">
+      <div class="space-y-4 md:space-y-6">
         <div>
-          <label class="block text-sm font-bold text-indigo-700 mb-2 uppercase tracking-wide">Date</label>
+          <label class="block text-xs md:text-sm font-bold text-indigo-700 mb-2 uppercase tracking-wide">Date</label>
           <div class="relative group">
-            <i class="fa-solid fa-calendar-day absolute left-4 top-1/2 -translate-y-1/2 text-indigo-400 group-focus-within:text-indigo-600 transition-colors"></i>
+            <i class="fa-solid fa-calendar-day absolute left-3 md:left-4 top-1/2 -translate-y-1/2 text-indigo-400 group-focus-within:text-indigo-600 transition-colors"></i>
             <input
               id="modalDate"
               type="date"
-              class="w-full border-2 border-gray-200 rounded-xl pl-12 pr-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-300 bg-gray-50 hover:bg-white"
+              class="w-full border-2 border-gray-200 rounded-xl pl-10 md:pl-12 pr-3 md:pr-4 py-2 md:py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-300 bg-gray-50 hover:bg-white text-sm md:text-base"
             />
           </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
           <div>
-            <label class="block text-sm font-bold text-indigo-700 mb-2 uppercase tracking-wide">Start Time</label>
+            <label class="block text-xs md:text-sm font-bold text-indigo-700 mb-2 uppercase tracking-wide">Start Time</label>
             <div class="relative group">
-              <i class="fa-solid fa-play absolute left-4 top-1/2 -translate-y-1/2 text-indigo-400 group-focus-within:text-indigo-600 transition-colors"></i>
+              <i class="fa-solid fa-play absolute left-3 md:left-4 top-1/2 -translate-y-1/2 text-indigo-400 group-focus-within:text-indigo-600 transition-colors"></i>
               <input
                 id="modalStart"
                 type="text"
                 placeholder="Start Time"
-                class="w-full border-2 border-gray-200 rounded-xl pl-12 pr-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-300 bg-gray-50 hover:bg-white"
+                class="w-full border-2 border-gray-200 rounded-xl pl-10 md:pl-12 pr-3 md:pr-4 py-2 md:py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-300 bg-gray-50 hover:bg-white text-sm md:text-base"
               />
             </div>
           </div>
 
           <div>
-            <label class="block text-sm font-bold text-indigo-700 mb-2 uppercase tracking-wide">End Time</label>
+            <label class="block text-xs md:text-sm font-bold text-indigo-700 mb-2 uppercase tracking-wide">End Time</label>
             <div class="relative group">
-              <i class="fa-solid fa-stop absolute left-4 top-1/2 -translate-y-1/2 text-indigo-400 group-focus-within:text-indigo-600 transition-colors"></i>
+              <i class="fa-solid fa-stop absolute left-3 md:left-4 top-1/2 -translate-y-1/2 text-indigo-400 group-focus-within:text-indigo-600 transition-colors"></i>
               <input
                 id="modalEnd"
                 type="text"
                 placeholder="End Time"
-                class="w-full border-2 border-gray-200 rounded-xl pl-12 pr-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-300 bg-gray-50 hover:bg-white"
+                class="w-full border-2 border-gray-200 rounded-xl pl-10 md:pl-12 pr-3 md:pr-4 py-2 md:py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-300 bg-gray-50 hover:bg-white text-sm md:text-base"
               />
             </div>
           </div>
         </div>
 
         <div>
-          <label class="block text-sm font-bold text-indigo-700 mb-2 uppercase tracking-wide">Note (Optional)</label>
+          <label class="block text-xs md:text-sm font-bold text-indigo-700 mb-2 uppercase tracking-wide">Note (Optional)</label>
           <div class="relative group">
-            <i class="fa-solid fa-note-sticky absolute left-4 top-4 text-indigo-400 group-focus-within:text-indigo-600 transition-colors"></i>
+            <i class="fa-solid fa-note-sticky absolute left-3 md:left-4 top-3 md:top-4 text-indigo-400 group-focus-within:text-indigo-600 transition-colors"></i>
             <textarea
               id="modalNote"
               placeholder="Add a note about this task"
               rows="4"
-              class="w-full border-2 border-gray-200 rounded-xl pl-12 pr-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-300 bg-gray-50 hover:bg-white resize-none"
+              class="w-full border-2 border-gray-200 rounded-xl pl-10 md:pl-12 pr-3 md:pr-4 py-2 md:py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-300 bg-gray-50 hover:bg-white resize-none text-sm md:text-base"
             ></textarea>
           </div>
         </div>
       </div>
     </div>
     
-    <div class="p-6 bg-gradient-to-r from-gray-50 to-gray-100 border-t-2 border-gray-200 flex justify-end gap-3">
-      <button onclick="closeAddEntryModal()" class="bg-gray-500 hover:bg-gray-600 text-white px-8 py-4 rounded-2xl font-bold transition-all duration-300 transform hover:scale-105 shadow-lg">
+    <div class="p-4 md:p-6 bg-gradient-to-r from-gray-50 to-gray-100 border-t-2 border-gray-200 flex flex-col sm:flex-row justify-end gap-3 sticky bottom-0">
+      <button onclick="closeAddEntryModal()" class="w-full sm:w-auto bg-gray-500 hover:bg-gray-600 text-white px-6 md:px-8 py-3 md:py-4 rounded-xl md:rounded-2xl font-bold text-sm md:text-base transition-all duration-300 transform hover:scale-105 shadow-lg order-2 sm:order-1">
         Cancel
       </button>
-      <button onclick="saveManualEntry()" class="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-8 py-4 rounded-2xl font-bold transition-all duration-300 transform hover:scale-105 shadow-lg">
+      <button onclick="saveManualEntry()" class="w-full sm:w-auto bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-6 md:px-8 py-3 md:py-4 rounded-xl md:rounded-2xl font-bold text-sm md:text-base transition-all duration-300 transform hover:scale-105 shadow-lg order-1 sm:order-2">
         <i class="fa-solid fa-check"></i> Save Entry
       </button>
     </div>
@@ -503,10 +732,10 @@
   function showEmptyMessage() {
     document.getElementById("list").innerHTML = `
       <tr>
-        <td colspan="5" class="p-12 text-center text-gray-400">
-          <i class="fa-solid fa-clock text-6xl mb-4 block text-indigo-200"></i>
-          <p class="text-xl font-semibold text-gray-500">No time entries yet</p>
-          <p class="text-sm text-gray-400 mt-2">Add your first entry above to get started</p>
+        <td colspan="5" class="p-6 sm:p-8 md:p-12 text-center text-gray-400">
+          <i class="fa-solid fa-clock text-4xl sm:text-5xl md:text-6xl mb-3 md:mb-4 block text-indigo-200"></i>
+          <p class="text-base sm:text-lg md:text-xl font-semibold text-gray-500">No time entries yet</p>
+          <p class="text-xs sm:text-sm text-gray-400 mt-2">Add your first entry above to get started</p>
         </td>
       </tr>
     `;
@@ -515,16 +744,16 @@
   function addRow(entry, index) {
     const row = `
       <tr class="hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 transition-all duration-200 group">
-        <td class="p-5 text-gray-700 font-medium">${formatDate(entry.date)}</td>
-        <td class="p-5 text-gray-600">${formatTime(entry.start)}</td>
-        <td class="p-5 text-gray-600">${formatTime(entry.end)}</td>
-        <td class="p-5 font-bold text-lg bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">${entry.hours}h ${entry.minutes}m</td>
-        <td class="p-5 text-center">
-          <button onclick="viewNote(${index})" class="text-indigo-500 hover:text-indigo-700 transition-all duration-200 transform hover:scale-110 mr-3">
-            <i class="fa-solid fa-eye text-xl"></i>
+        <td class="p-2.5 sm:p-3 md:p-5 text-gray-700 font-medium text-[10px] sm:text-xs md:text-base whitespace-nowrap">${formatDate(entry.date)}</td>
+        <td class="p-2.5 sm:p-3 md:p-5 text-gray-600 text-[10px] sm:text-xs md:text-base whitespace-nowrap">${formatTime(entry.start)}</td>
+        <td class="p-2.5 sm:p-3 md:p-5 text-gray-600 text-[10px] sm:text-xs md:text-base whitespace-nowrap">${formatTime(entry.end)}</td>
+        <td class="p-2.5 sm:p-3 md:p-5 font-bold text-sm sm:text-base md:text-lg bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent whitespace-nowrap">${entry.hours}h ${entry.minutes}m</td>
+        <td class="p-2.5 sm:p-3 md:p-5 text-center whitespace-nowrap">
+          <button onclick="viewNote(${index})" class="text-indigo-500 hover:text-indigo-700 active:text-indigo-800 transition-all duration-200 transform active:scale-110 mr-2 md:mr-3" aria-label="View note">
+            <i class="fa-solid fa-eye text-sm sm:text-base md:text-xl"></i>
           </button>
-          <button onclick="deleteEntry(${index})" class="text-red-500 hover:text-red-700 transition-all duration-200 transform hover:scale-125 hover:rotate-12">
-            <i class="fa-solid fa-trash text-xl"></i>
+          <button onclick="deleteEntry(${index})" class="text-red-500 hover:text-red-700 active:text-red-800 transition-all duration-200 transform active:scale-125" aria-label="Delete entry">
+            <i class="fa-solid fa-trash text-sm sm:text-base md:text-xl"></i>
           </button>
         </td>
       </tr>
@@ -908,10 +1137,10 @@
     if (historyEntries.length === 0) {
       historyList.innerHTML = `
         <tr>
-          <td colspan="5" class="p-12 text-center text-gray-400">
-            <i class="fa-solid fa-clock text-6xl mb-4 block text-indigo-200"></i>
-            <p class="text-xl font-semibold text-gray-500">No entries found</p>
-            <p class="text-sm text-gray-400 mt-2">Try adjusting your filters</p>
+          <td colspan="5" class="p-6 sm:p-8 md:p-12 text-center text-gray-400">
+            <i class="fa-solid fa-clock text-4xl sm:text-5xl md:text-6xl mb-3 md:mb-4 block text-indigo-200"></i>
+            <p class="text-base sm:text-lg md:text-xl font-semibold text-gray-500">No entries found</p>
+            <p class="text-xs sm:text-sm text-gray-400 mt-2">Try adjusting your filters</p>
           </td>
         </tr>
       `;
@@ -920,14 +1149,14 @@
     }
 
     historyEntries.forEach(entry => {
-      const noteDisplay = entry.note ? `<span class="text-gray-600 italic">${entry.note}</span>` : `<span class="text-gray-400 italic">No note</span>`;
+      const noteDisplay = entry.note ? `<span class="text-gray-600 italic text-[10px] sm:text-xs md:text-sm line-clamp-2">${entry.note}</span>` : `<span class="text-gray-400 italic text-[10px] sm:text-xs md:text-sm">No note</span>`;
       const row = `
         <tr class="hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 transition-all duration-200">
-          <td class="p-5 text-gray-700 font-medium">${formatDate(entry.date)}</td>
-          <td class="p-5 text-gray-600">${formatTime(entry.start)}</td>
-          <td class="p-5 text-gray-600">${formatTime(entry.end)}</td>
-          <td class="p-5 font-bold text-lg bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">${entry.hours}h ${entry.minutes}m</td>
-          <td class="p-5">${noteDisplay}</td>
+          <td class="p-2.5 sm:p-3 md:p-5 text-gray-700 font-medium text-[10px] sm:text-xs md:text-base whitespace-nowrap">${formatDate(entry.date)}</td>
+          <td class="p-2.5 sm:p-3 md:p-5 text-gray-600 text-[10px] sm:text-xs md:text-base whitespace-nowrap">${formatTime(entry.start)}</td>
+          <td class="p-2.5 sm:p-3 md:p-5 text-gray-600 text-[10px] sm:text-xs md:text-base whitespace-nowrap">${formatTime(entry.end)}</td>
+          <td class="p-2.5 sm:p-3 md:p-5 font-bold text-sm sm:text-base md:text-lg bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent whitespace-nowrap">${entry.hours}h ${entry.minutes}m</td>
+          <td class="p-2.5 sm:p-3 md:p-5 max-w-[150px] sm:max-w-[200px] md:max-w-xs">${noteDisplay}</td>
         </tr>
       `;
       historyList.insertAdjacentHTML("beforeend", row);
@@ -1212,6 +1441,44 @@
     document.getElementById("loading").classList.add("hidden");
   }
 
+  // ------------------ Mobile Menu Functions ------------------
+  window.openMenu = function() {
+    console.log("Opening menu...");
+    const overlay = document.getElementById("menuOverlay");
+    const menu = document.getElementById("mobileMenu");
+    
+    if (overlay && menu) {
+      overlay.classList.remove("hidden");
+      menu.classList.remove("translate-x-full");
+      document.body.style.overflow = "hidden";
+      console.log("Menu opened successfully");
+    } else {
+      console.error("Menu elements not found!");
+    }
+  };
+
+  window.closeMenu = function() {
+    console.log("Closing menu...");
+    const overlay = document.getElementById("menuOverlay");
+    const menu = document.getElementById("mobileMenu");
+    
+    if (overlay && menu) {
+      overlay.classList.add("hidden");
+      menu.classList.add("translate-x-full");
+      document.body.style.overflow = "";
+      console.log("Menu closed successfully");
+    } else {
+      console.error("Menu elements not found!");
+    }
+  };
+
+  // Test menu function on page load
+  document.addEventListener('DOMContentLoaded', function() {
+    console.log("Page loaded, checking menu elements...");
+    console.log("Menu overlay:", document.getElementById("menuOverlay"));
+    console.log("Mobile menu:", document.getElementById("mobileMenu"));
+  });
+
 </script>
 
 <!-- Loading Overlay -->
@@ -1219,9 +1486,9 @@
   id="loading"
   class="fixed inset-0 bg-gradient-to-br from-indigo-900/95 via-purple-900/95 to-pink-900/95 backdrop-blur-lg z-[9999] hidden flex items-center justify-center"
 >
-  <div class="flex flex-col items-center gap-6 bg-white/10 backdrop-blur-xl p-12 rounded-3xl border border-white/20 shadow-2xl">
-    <i class="fa-solid fa-spinner fa-spin text-white text-6xl"></i>
-    <span class="text-white font-bold text-2xl animate-pulse">Loading time entries...</span>
+  <div class="flex flex-col items-center gap-4 md:gap-6 bg-white/10 backdrop-blur-xl p-8 md:p-12 rounded-2xl md:rounded-3xl border border-white/20 shadow-2xl">
+    <i class="fa-solid fa-spinner fa-spin text-white text-5xl md:text-6xl"></i>
+    <span class="text-white font-bold text-xl md:text-2xl animate-pulse">Loading time entries...</span>
   </div>
 </div>
 
